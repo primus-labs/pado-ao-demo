@@ -1,0 +1,13 @@
+
+@import '@/assets/css/flex.scss';
+.pageHome {
+  display: flex;
+  height: 100vh;
+  >div {
+    flex: 1;
+    @include frcc;
+    .content{
+      width: 587px;
+    }
+  }
+}

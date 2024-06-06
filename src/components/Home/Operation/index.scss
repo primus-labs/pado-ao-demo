@@ -1,0 +1,147 @@
+@import "@/assets/css/flex.scss";
+.operationWrapper {
+  background: #fff;
+  @include frcc;
+  position: relative;
+
+  .connectBtn {
+    width: 133px;
+    height: 36px;
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    color: #09090b;
+  }
+  .content {
+    @include fcsc;
+    gap: 36px;
+    width: 350px;
+    header {
+      width: 100%;
+      text-align: center;
+      padding: 8px 0;
+      h5 {
+        font-family: "Inter";
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 32px;
+        letter-spacing: -0.6px;
+      }
+      h6 {
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 20px;
+        letter-spacing: 0px;
+        color: #71717a;
+      }
+    }
+    .operationForm {
+      width: 100%;
+      .ant-form-item {
+        width: 100%;
+        margin-bottom: 16px;
+        .ant-form-item-label {
+          font-family: Inter;
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 14px;
+          letter-spacing: 0px;
+          color: #09090b;
+        }
+        .ant-input {
+          background: #ffffff;
+          box-sizing: border-box;
+          border: 1px solid #e4e4e7;
+          border-radius: 6px;
+          padding: 4px 12px;
+
+          font-family: Inter;
+          font-size: 12px;
+          font-weight: normal;
+          line-height: 20px;
+          letter-spacing: 0px;
+          color: #09090b;
+          &::-webkit-input-placeholder {
+            color: #71717a;
+          }
+        }
+        .ant-input-number {
+          width: 100%;
+        }
+        &.typeFormItem {
+          margin-bottom: 24px;
+          .ant-radio-group {
+            @include frsc;
+            gap: 16px;
+            .ant-radio-button-wrapper {
+              flex: 1;
+              border-radius: 6px;
+              background: #ffffff;
+              box-sizing: border-box;
+              border: 2px solid #f4f4f5;
+              @include frcc;
+              gap: 12px;
+              height: 48px;
+              > div,
+              &::before {
+                display: none;
+              }
+              &:hover {
+                color: #09090b;
+              }
+              .ant-radio-button-wrapper::after {
+                display: none;
+              }
+              &.ant-radio-button-wrapper-checked {
+                border-color: #18181b;
+                &::after,
+                &:hover::after {
+                  display: none;
+                }
+                &:not(.ant-radio-button-wrapper-disabled) {
+                  color: #09090b;
+                }
+              }
+              .typeWrapper {
+                width: 100%;
+                @include frcc;
+                gap: 12px;
+                .typeIcon {
+                  width: 16px;
+                }
+                .typeText {
+                  font-family: Inter;
+                  font-size: 14px;
+                  font-weight: normal;
+                  line-height: 20px;
+                  letter-spacing: 0px;
+                  color: #09090b;
+                }
+              }
+            }
+          }
+        }
+        &.priceFormItem {
+          margin-bottom: 40px;
+        }
+        &.submitBtnFormItem {
+          .ant-btn {
+            width: 100%;
+            height: 36px;
+            background-color: #18181b;
+            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+
+            font-family: Inter;
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 20px;
+            letter-spacing: 0px;
+
+            color: #fafafa;
+          }
+        }
+      }
+    }
+  }
+}

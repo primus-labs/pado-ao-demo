@@ -1,0 +1,49 @@
+@import "@/assets/css/flex.scss";
+.listWrapper {
+  height: 100%;
+  background: #18181b;
+  .content {
+    height: 720px;
+    @include fcss;
+    color: #ffffff;
+    > header {
+      @include frsc;
+      gap: 8px;
+
+      font-family: Inter;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 28px;
+      letter-spacing: 0px;
+      .icon-iconHeader {
+        font-size: 24px;
+      }
+    }
+    .filterInput {
+      // margin-top: 48px;
+      margin-top: 20px;
+      width: 251px;
+      padding: 8px 12px;
+      background: #1d1d1d;
+      box-sizing: border-box;
+      border: 1px solid #393939;
+      box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+      .ant-input::-webkit-input-placeholder {
+        color: #6f6f6f;
+      }
+
+      font-family: Inter;
+      font-size: 14px;
+      font-weight: normal;
+      line-height: 20px;
+      letter-spacing: 0px;
+
+      color: #6f6f6f;
+
+      z-index: 0;
+    }
+    .dataTable {
+      margin-top: 16px;
+    }
+  }
+}
