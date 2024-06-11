@@ -1,14 +1,26 @@
-import React, { memo, useCallback, useState, useMemo, FC } from "react";
+import React, {
+  memo,
+  useCallback,
+  useState,
+  useMemo,
+  FC,
+  useContext,
+} from "react";
 
 import { Pagination } from "antd";
 import PButton from "@/components/PButton";
 import PSelect from "@/components/PSelect";
+import CounterContext from "../../CounterContext";
 
 import "./index.scss";
 const PAGESIZE = 10;
 interface TokenTableProps {}
 
 const Table: FC<TokenTableProps> = memo(({}) => {
+  const {
+    state: { shoppingId },
+    setShoppingId,
+  } = useContext(CounterContext)!;
   const totolCount = 11;
   const [current, setCurrent] = useState(1);
   const [filterType, setFilterType] = useState("");
@@ -131,13 +143,18 @@ const Table: FC<TokenTableProps> = memo(({}) => {
     }
     setCurrent(page);
   };
-  const handleAddToSHoppingCart = (j: any) => {};
+  const handleAddToShoppingCart = (j: any) => {
+    debugger;
+    setShoppingId(j.id);
+  };
   const filterTypeList = [
     { label: "All", value: "All" },
     { label: "Text", value: "Text" },
     { label: "Video", value: "Video" },
   ];
-  const handleChangeFilterType = () => {};
+  const handleChangeFilterType = (val: string) => {
+    setFilterType(val);
+  };
   const handleSort = (sort: string) => {};
   return (
     <div className="dataTable">
@@ -191,7 +208,7 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                   type="icon"
                   icon={<i className="iconfont icon-iconShoppingCart"></i>}
                   onClick={() => {
-                    handleAddToSHoppingCart(j);
+                    handleAddToShoppingCart(j);
                   }}
                   className="addBtn"
                 />

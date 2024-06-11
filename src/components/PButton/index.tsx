@@ -14,6 +14,7 @@ interface PButtonProps {
 
   prefix?: any;
   suffix?: any;
+  stopPropagation?: boolean
 }
 // how to use: <PPButton text="Connect" type="text"  className="disable"/>
 const PButton: React.FC<PButtonProps> = memo(
@@ -23,14 +24,15 @@ const PButton: React.FC<PButtonProps> = memo(
     text,
     onClick,
     className,
-    type = 'primary',
+    type = "primary",
     icon,
-    size = 'm',
+    size = "m",
     disabled = false,
     loading = false,
+    stopPropagation = true
   }) => {
     const formatClassName = useMemo(() => {
-      let defaultCN = 'PButton';
+      let defaultCN = "PButton";
       // if (className) {
       //   defaultCN += ' ' + className;
       // }
@@ -69,7 +71,7 @@ const PButton: React.FC<PButtonProps> = memo(
       return defaultCN;
     }, [className, type, size, disabled]);
     const handleClick = (e: SyntheticEvent) => {
-      e.stopPropagation();
+      if (stopPropagation){e.stopPropagation();} 
       if (disabled) {
       } else {
         onClick && onClick();
@@ -78,11 +80,11 @@ const PButton: React.FC<PButtonProps> = memo(
     return (
       <button className={formatClassName} onClick={handleClick}>
         {prefix}
-        {type === 'icon' ? (
+        {type === "icon" ? (
           icon
         ) : loading ? (
           <>
-            {type === 'text' ? (
+            {type === "text" ? (
               <>
                 <span className="btnText">{text}</span>
                 <div className="spinnerWrapper">
@@ -98,7 +100,7 @@ const PButton: React.FC<PButtonProps> = memo(
         ) : (
           <>
             <span className="btnText">{text}</span>
-            {type === 'text' &&
+            {type === "text" &&
               (suffix ?? <i className="iconfont icon-LinkArrow"></i>)}
           </>
         )}

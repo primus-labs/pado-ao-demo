@@ -15,7 +15,24 @@
   .content {
     @include fcsc;
     gap: 36px;
-    width: 350px;
+    width: 350px !important;
+    .ant-btn {
+      width: 100%;
+      height: 36px;
+      background-color: #18181b;
+      box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+
+      font-family: Inter;
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 20px;
+      letter-spacing: 0px;
+
+      color: #fafafa;
+      &.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
+        background-color: #18181b;
+      }
+    }
     header {
       width: 100%;
       text-align: center;
@@ -126,22 +143,133 @@
           margin-bottom: 40px;
         }
         &.submitBtnFormItem {
-          .ant-btn {
+          margin-bottom: 0;
+        }
+        &.submitBtnFormItem2 {
+          align-items: flex-end;
+          position: absolute;
+          bottom: 0;
+        }
+        &.uploadFileFormItem {
+          .ant-form-item-control-input,
+          .ant-form-item-control-input-content,
+          .ant-upload-wrapper,
+          .ant-upload {
+            height: 118px;
             width: 100%;
-            height: 36px;
-            background-color: #18181b;
-            box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+            display: flex;
+          }
+          .ant-upload {
+            @include fccc;
+            gap: 12px;
+            border-top: 1px dashed #e4e4e7;
+            border-bottom: 1px dashed #e4e4e7;
+            cursor: pointer;
+            .uploadBtn {
+              padding: 0;
+              border: 0 !important;
+              .iconfont {
+                font-size: 16px;
+                color: #09090b;
+              }
+            }
+            p {
+              font-family: Inter;
+              font-size: 12px;
+              font-weight: normal;
+              line-height: 20px;
+              text-align: center;
+              letter-spacing: 0px;
 
-            font-family: Inter;
-            font-size: 14px;
-            font-weight: 500;
-            line-height: 20px;
-            letter-spacing: 0px;
-
-            color: #fafafa;
+              color: #71717a;
+            }
           }
         }
       }
+      &.operationForm2 {
+        height: 420px;
+        position: relative;
+      }
+    }
+    .PBack {
+      gap: 8px;
+      align-self: flex-start;
+      --icon-tokens-icon-primary: #09090b;
+    }
+    .details {
+      width: 100%;
+      @include fcbs;
+
+      height: 420px;
+      .detailsCon {
+        width: 100%;
+        @include fcbs;
+
+        .tip {
+          @include frsc;
+          gap: 4px;
+          .iconfont {
+            font-size: 16px;
+            color: #24a148;
+          }
+          > p {
+            font-family: IBM Plex Sans;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 18px;
+            text-align: center;
+            letter-spacing: 0.16px;
+            color: #24a148;
+          }
+        }
+      }
+      .detailsTitle {
+        margin-top: 16px;
+        margin-bottom: 12px;
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 20px;
+        letter-spacing: -0.21px;
+        color: #000000;
+      }
+      .detailItems {
+        width: 100%;
+        @include fcss;
+        gap: 12px;
+        .detailItem {
+          width: 100%;
+          @include frbs;
+          .label {
+            font-family: Inter;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 24px;
+            letter-spacing: -0.21px;
+            color: #64748b;
+            width: 80px;
+          }
+          .value {
+            width: 240px;
+
+            font-family: Inter;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 24px;
+            text-align: right;
+            letter-spacing: -0.21px;
+            color: #020617;
+            &:not(.descriptionValue) {
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+        }
+      }
+    }
+    .okBtn {
+      width: 100%;
     }
   }
 }

@@ -73,8 +73,7 @@ const PSelect: React.FC<PSelectProps> = memo(
       }
     }, [list, value, showSelf]);
     const isOpen = useMemo(() => {
-      // return optionsVisible && !disabled && activeOptions.length > 0;
-      return true
+      return optionsVisible && !disabled && activeOptions.length > 0;
     }, [optionsVisible, disabled, activeOptions.length]);
     const formatSelectCN = useMemo(() => {
       let defaultCN = "selectInput";

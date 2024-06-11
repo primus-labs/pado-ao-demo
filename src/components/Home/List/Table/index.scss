@@ -48,6 +48,7 @@
             padding: 0 8px;
           }
           &.type {
+            overflow: visible;
             .PSelect {
               width: 77px !important;
               .selectInput {
@@ -63,6 +64,23 @@
                   line-height: 16px;
                   letter-spacing: 0px;
                   color: #6f6f6f;
+                }
+              }
+              .selectOptionswrapper {
+                width: 77px;
+                top:32px;
+                .dropdownOption {
+                  .left {
+                    .iconfont {
+                      display: none;
+                    }
+                    .placeHolder {
+                      display: none;
+                    }
+                    .desc {
+                      font-size: 12px;
+                    }
+                  }
                 }
               }
             }
@@ -213,7 +231,7 @@
       }
     }
     .ant-pagination-item {
-     border:0;
+      border: 0;
       &:not(.ant-pagination-item-active) a {
         color: #f6f6f6;
       }

@@ -1,0 +1,25 @@
+@import "@/assets/css/flex.scss";
+
+.PBack {
+  cursor: pointer;
+  @include frsc;
+  gap: var(--spacing-4, 4px);
+
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 20px;
+  letter-spacing: 0px;
+
+  color: #161616;
+  color: var(--text-tokens-text-primary, #161616);
+  .PButton{
+    padding:0;
+  }
+  .iconfont {
+    font-size: var(--spacing-16, 16px);
+    color: var(--Icon-Tokens-icon-primary, #161616);
+    transform: rotate(90deg);
+    cursor: pointer;
+  }
+}
