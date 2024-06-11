@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@padolabs/pado-ao-sdk": "^0.1.1",
+    "@padolabs/pado-ao-sdk": "^0.1.2",
     "antd": "^5.18.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
@@ -25,6 +25,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
     "sass": "^1.77.4",
+    "tslib": "^2.6.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

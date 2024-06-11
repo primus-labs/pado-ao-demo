@@ -10,7 +10,9 @@
     position: absolute;
     top: 32px;
     right: 32px;
-    color: #09090b;
+    .btnText {
+      color: #09090b;
+    }
   }
   .content {
     @include fcsc;

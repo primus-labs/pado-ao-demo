@@ -3,17 +3,17 @@ import React, { createContext, useReducer, Reducer } from "react";
 
 interface CounterState {
   count: number;
-  shoppingId: string;
+  shoppingData: any;
 }
 
 interface CounterAction {
-  type: "increment" | "decrement" | "setShoppingId";
+  type: "increment" | "decrement" | "setShoppingData";
   payload?: any;
 }
 
 const initialState: CounterState = {
   count: 0,
-  shoppingId: "",
+  shoppingData: null,
 };
 
 // 创建一个reducer来处理状态更新
@@ -26,8 +26,9 @@ const counterReducer: Reducer<CounterState, CounterAction> = (
       return { count: state.count + 1 };
     case "decrement":
       return { count: state.count - 1 };
-    case "setShoppingId":
-      return { ...state, shoppingId: action.payload };
+    case "setShoppingData":
+      return { ...state, shoppingData: action.payload };
+    
     default:
       throw new Error();
   }
@@ -39,7 +40,7 @@ const CounterContext = createContext<
       state: CounterState;
       increment: () => void;
       decrement: () => void;
-      setShoppingId: (shoppingId: any) => void;
+      setShoppingData: (shoppingData: any) => void;
     }
   | undefined
 >(undefined);
@@ -49,12 +50,12 @@ export function CounterProvider({ children }: { children: React.ReactNode }) {
 
   const increment = () => dispatch({ type: "increment" });
   const decrement = () => dispatch({ type: "decrement" });
-  const setShoppingId = (payload: any) =>
-    dispatch({ type: "setShoppingId", payload });
+  const setShoppingData = (payload: any) =>
+    dispatch({ type: "setShoppingData", payload });
 
   return (
     <CounterContext.Provider
-      value={{ state, increment, decrement, setShoppingId }}
+      value={{ state, increment, decrement, setShoppingData }}
     >
       {children}
     </CounterContext.Provider>

@@ -1,59 +1,138 @@
+import {
+  generateKey,
+  getResult,
+  submitTask,
+  uploadData,
+} from "@padolabs/pado-ao-sdk";
+import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
+import React, {
+  useState,
+  useContext,
+  useEffect,
+  memo,
+  FC,
+  useMemo,
+} from "react";
 import "./index.scss";
 import PButton from "@/components/PButton";
-
-import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
-import React, { useState, useContext } from "react";
 import PBack from "@/components/PBack";
 import iconText from "@/assets/img/iconText.svg";
 import iconVideo from "@/assets/img/iconVideo.svg";
 import CounterContext from "../CounterContext";
 
-type LayoutType = Parameters<typeof Form>[0]["layout"];
-function Operation() {
+const Operation: FC = memo(() => {
   const {
-    state: { shoppingId },
-    setShoppingId,
+    state: { shoppingData },
   } = useContext(CounterContext)!;
+  const [address, setAddress] = useState<string>();
   const [form1] = Form.useForm();
   const [form2] = Form.useForm();
   const [operationType, setOperationType] = useState("create");
-  const [step, setStep] = useState(3);
+  const [step, setStep] = useState(1);
   const [fileList, setFileList] = useState([]);
+  const [dataId, setDataId] = useState<string>();
+  const [taskMsg, setTaskMsg] = useState<string>();
+  const [fileData, setFileData] = useState();
+  const [form1Data, setForm1Data] = useState({});
+  const [createLoading, setCreateLoading] = useState<boolean>(false);
+  const [buyDataLoading, setBuyDataLoading] = useState<boolean>(false);
 
-  // 模拟上传成功后的处理函数
   const handleSuccess = (response, file) => {
-    // 这里通常处理服务器返回的数据，但因为我们不实际上传，所以可以忽略response
-    file.response = { status: "success" }; // 模拟成功状态
-    // 假设你需要更新fileList，但实际上由于我们没有发送请求，这里可以不做任何处理
+    file.response = { status: "success" };
   };
-  // 自定义的beforeUpload函数，这里我们阻止实际的上传行为
   const beforeUpload = (file) => {
-    debugger;
-    // 这里只是简单地将文件添加到fileList中，而不实际发送文件到服务器
     setFileList([...fileList, file]);
-    // 阻止Upload组件的默认上传行为
     return false;
   };
 
-  const handleConnect = () => {};
-  const onFinish = (values: any) => {
-    console.log("表单的值:", values, form1.getFieldsValue()); // values 就是你的 userForm 对象
+  const handleConnect = async () => {
+    if (address) {
+      return;
+    }
+    try {
+      await window.arweaveWallet.connect(
+        // request permissions to read the active address
+        ["ACCESS_ADDRESS", "SIGN_TRANSACTION"]
+      );
+    } catch (e) {
+      console.log(e);
+    } finally {
+    }
+    const addressTmp = await window.arweaveWallet.getActiveAddress();
+
+    setAddress(addressTmp);
+  };
+
+  const onFinishForm1 = (values: any) => {
+    console.log("The value of the form1:", values, form1.getFieldsValue()); // values 就是你的 userForm 对象
+    setForm1Data({ ...form1.getFieldsValue() });
     setStep(2);
-    // 在这里你可以将 values 发送到后端或者进行其他处理
   };
-  // 处理表单验证失败的情况
-  const onFinishFailed = (errorInfo: any) => {
-    console.log("表单验证失败:", errorInfo);
+  const onFinishFailedForm1 = (errorInfo: any) => {
+    console.log("Form1 validation failed:", errorInfo);
   };
-  const onFinish2 = (values: any) => {
-    console.log("表单的值:", values, form2.getFieldsValue()); // values 就是你的 userForm 对象
-    setStep(3);
-    // 在这里你可以将 values 发送到后端或者进行其他处理
+
+  const onFinishForm2 = (values: any) => {
+    setCreateLoading(true);
+    console.log(
+      "The value of the form2:",
+      values,
+      form2.getFieldsValue(),
+      form1.getFieldsValue(),
+      form1Data
+    ); // values 就是你的 userForm 对象
+    try {
+      const file = values.uploadFile.fileList[0].originFileObj;
+      if (file) {
+        const { name: fileName, size: fileSize, type: fileType } = file;
+        const reader = new FileReader();
+
+        reader.readAsArrayBuffer(file);
+        reader.onload = async (e) => {
+          const content = e.target.result;
+          const data = new Uint8Array(content);
+
+          // tag for the data
+          const { dataType, dataName, dataDescription, dataPrice } = form1Data;
+          debugger;
+          let dataTag = {
+            dataType,
+            dataName,
+            dataDescription,
+            dataPrice,
+            fileType,
+            fileName,
+            fileSize,
+            ownerAddress: address,
+          };
+
+          // price for the data
+          let priceInfo = {
+            price: dataPrice * Math.pow(10, 3) + "",
+            symbol: "AOCRED",
+          };
+          debugger;
+
+          const dataId = await uploadData(
+            data,
+            dataTag,
+            priceInfo,
+            window.arweaveWallet
+          );
+          setDataId(dataId);
+          console.log(`DATAID=${dataId}`);
+          setCreateLoading(false);
+          setStep(3);
+        };
+      }
+    } catch (e) {
+      console.log("onFinishForm2 e:", e);
+    }
   };
-  // 处理表单验证失败的情况
-  const onFinishFailed2 = (errorInfo: any) => {
-    console.log("表单验证失败:", errorInfo);
+  const onFinishFailedForm2 = (errorInfo: any) => {
+    console.log("Form2 validation failed:", errorInfo);
   };
+
   const handleBack = () => {
     setStep((p) => --p);
   };
@@ -62,14 +141,72 @@ function Operation() {
     form2.resetFields();
     setStep(1);
   };
-  const handleBuy = () => {
-    
+  async function submitTaskAndGetResult() {
+    setBuyDataLoading(true);
+    setTaskMsg("generate key");
+    let key = await generateKey();
+
+    setTaskMsg("submit task");
+    const taskId = await submitTask(
+      shoppingData.id,
+      key.pk,
+      window.arweaveWallet
+    );
+    console.log(`TASKID=${taskId}`);
+    setTaskMsg("get task result");
+    const [err, data] = await getResult(taskId, key.sk)
+      .then((data) => {
+        setTaskMsg("");
+        return [null, data];
+      })
+      .catch((err) => {
+        setTaskMsg("");
+        alert(err);
+        return [err, null];
+      });
+    console.log(`err=${err}`);
+    console.log(`data=${data}`);
+    //for test
+    if (data) {
+      setFileData(data);
+      // downloadArrayBufferAsFile(data);
+      setBuyDataLoading(false);
+    }
   }
+
+  function downloadArrayBufferAsFile() {
+    const dataTagObj = JSON.parse(shoppingData.dataTag);
+    const { fileName, fileType } = dataTagObj;
+    const blob = new Blob([fileData], { type: fileType });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = fileName;
+
+    document.body.appendChild(a);
+    a.click();
+
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  }
+  const formatAddress = useMemo(() => {
+    if (address) {
+      const startS = address.substr(0, 7);
+      const endS = address.substr(-5);
+      return `${startS}...${endS}`;
+    } else {
+      return "";
+    }
+  }, [address]);
+  useEffect(() => {
+    setOperationType(shoppingData ? "detail" : "create");
+  }, [shoppingData]);
   return (
     <div className="operationWrapper">
       <PButton
         type="text2"
-        text="Connect Wallet"
+        text={address ? formatAddress : "Connect Wallet"}
         onClick={handleConnect}
         className="connectBtn"
       />
@@ -86,15 +223,20 @@ function Operation() {
                   layout="vertical"
                   form={form1}
                   name="userForm"
-                  onFinish={onFinish}
-                  onFinishFailed={onFinishFailed}
-                  initialValues={{ type: "Text" }}
+                  onFinish={onFinishForm1}
+                  onFinishFailed={onFinishFailedForm1}
+                  initialValues={{
+                    dataType: "Text",
+                    dataName: "name2",
+                    dataDescription: "description2",
+                    dataPrice: 0.001,
+                  }}
                   requiredMark={false}
                   className="operationForm"
                 >
                   <Form.Item
                     label=""
-                    name="type"
+                    name="dataType"
                     className="typeFormItem"
                     rules={[
                       { required: true, message: "${label} is required" },
@@ -117,7 +259,7 @@ function Operation() {
                   </Form.Item>
                   <Form.Item
                     label="Name"
-                    name="name"
+                    name="dataName"
                     className="nameFormItem"
                     rules={[
                       { required: true, message: "${label} is required" },
@@ -127,7 +269,7 @@ function Operation() {
                   </Form.Item>
                   <Form.Item
                     label="Description"
-                    name="description"
+                    name="dataDescription"
                     className="descriptionFormItem"
                     rules={[
                       { required: true, message: "${label} is required" },
@@ -140,7 +282,7 @@ function Operation() {
                   </Form.Item>
                   <Form.Item
                     label="Price (AO)"
-                    name="price"
+                    name="dataPrice"
                     className="priceFormItem"
                     rules={[
                       { required: true, message: "${label} is required" },
@@ -164,8 +306,8 @@ function Operation() {
                   layout="vertical"
                   form={form2}
                   name="userForm2"
-                  onFinish={onFinish2}
-                  onFinishFailed={onFinishFailed2}
+                  onFinish={onFinishForm2}
+                  onFinishFailed={onFinishFailedForm2}
                   requiredMark={false}
                   className="operationForm operationForm2"
                 >
@@ -180,18 +322,8 @@ function Operation() {
                     <Upload
                       name="uFile"
                       maxCount={1}
-                      action="" // 可以留空或者是一个返回Promise的模拟函数
+                      action=""
                       beforeUpload={beforeUpload}
-                      onChange={(info) => {
-                        // if (info.file.status !== "uploading") {
-                        //   console.log(info.file, info.fileList);
-                        // }
-                        // if (info.file.status === "done") {
-                        //   message.success(`${info.file.name} 上传成功`);
-                        // } else if (info.file.status === "error") {
-                        //   message.error(`${info.file.name} 上传失败`);
-                        // }
-                      }}
                       onSuccess={handleSuccess}
                       fileList={fileList}
                     >
@@ -206,7 +338,11 @@ function Operation() {
                     </Upload>
                   </Form.Item>
                   <Form.Item className="submitBtnFormItem submitBtnFormItem2">
-                    <Button type="primary" htmlType="submit">
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      loading={createLoading}
+                    >
                       Encrypt & send to Arweave
                     </Button>
                   </Form.Item>
@@ -226,49 +362,32 @@ function Operation() {
                     <ul className="detailItems">
                       <li className="detailItem">
                         <div className="label">Owner</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
+                        <div className="value">{address}</div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Data ID</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
+                        <div className="value">{dataId}</div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Data Type</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
+                        <div className="value">{form1Data?.dataType}</div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Data Name</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
-                      </li>
-                      <li className="detailItem">
-                        <div className="label">Data Type</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
+                        <div className="value">{form1Data?.dataName}</div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Price (AO)</div>
-                        <div className="value">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                        </div>
+                        <div className="value">{form1Data?.dataPrice}</div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Description</div>
                         <div className="value descriptionValue">
-                          vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                          {form1Data?.dataDescription}
                         </div>
                       </li>
                     </ul>
                   </div>
-
                   <Button type="primary" onClick={handleInit} className="okBtn">
                     OK
                   </Button>
@@ -282,10 +401,6 @@ function Operation() {
             <PBack onBack={handleBack} withLabel />
             <div className="details">
               <div className="detailsCon">
-                <div className="tip">
-                  <i className="iconfont icon-iconResultSuc"></i>
-                  <p>Send to Arweave successfully!</p>
-                </div>
                 <h5 className="detailsTitle">Details</h5>
                 <ul className="detailItems">
                   <li className="detailItem">
@@ -296,51 +411,58 @@ function Operation() {
                   </li>
                   <li className="detailItem">
                     <div className="label">Data ID</div>
-                    <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                    </div>
+                    <div className="value">{shoppingData.id}</div>
                   </li>
                   <li className="detailItem">
                     <div className="label">Data Type</div>
                     <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                      {JSON.parse(shoppingData.dataTag).dataType}
                     </div>
                   </li>
                   <li className="detailItem">
                     <div className="label">Data Name</div>
                     <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                      {JSON.parse(shoppingData.dataTag).dataName}
                     </div>
                   </li>
-                  <li className="detailItem">
-                    <div className="label">Data Type</div>
-                    <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
-                    </div>
-                  </li>
+
                   <li className="detailItem">
                     <div className="label">Price (AO)</div>
                     <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                      {JSON.parse(shoppingData.dataTag).dataPrice}
                     </div>
                   </li>
                   <li className="detailItem">
                     <div className="label">Description</div>
                     <div className="value descriptionValue">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                      {JSON.parse(shoppingData.dataTag).dataDescription}
                     </div>
                   </li>
                 </ul>
               </div>
-              <Button type="primary" onClick={handleBuy} className="okBtn">
+              <Button
+                type="primary"
+                onClick={submitTaskAndGetResult}
+                className="okBtn"
+                loading={buyDataLoading}
+              >
                 Buy
               </Button>
+              {fileData && (
+                <Button
+                  type="primary"
+                  onClick={downloadArrayBufferAsFile}
+                  className="okBtn"
+                >
+                  Download
+                </Button>
+              )}
             </div>
           </>
         )}
       </div>
     </div>
   );
-}
+});
 
 export default Operation;
