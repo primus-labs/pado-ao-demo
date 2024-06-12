@@ -1,19 +1,27 @@
 // CounterContext.tsx
-import React, { createContext, useReducer, Reducer } from "react";
-
+import React, { createContext, useReducer, Reducer, useEffect } from "react";
+import { listData } from "@padolabs/pado-ao-sdk";
 interface CounterState {
-  count: number;
   shoppingData: any;
+  marketDataList: any;
+  marketDataListLoading: boolean;
+  filterKeyword: string;
 }
 
 interface CounterAction {
-  type: "increment" | "decrement" | "setShoppingData";
+  type:
+    | "setShoppingData"
+    | "setMarketDataList"
+    | "setFilterKeyword"
+    | "setMarketDataListLoading";
   payload?: any;
 }
 
 const initialState: CounterState = {
-  count: 0,
   shoppingData: null,
+  marketDataList: [],
+  marketDataListLoading: false,
+  filterKeyword: "",
 };
 
 // 创建一个reducer来处理状态更新
@@ -22,13 +30,14 @@ const counterReducer: Reducer<CounterState, CounterAction> = (
   action
 ) => {
   switch (action.type) {
-    case "increment":
-      return { count: state.count + 1 };
-    case "decrement":
-      return { count: state.count - 1 };
     case "setShoppingData":
       return { ...state, shoppingData: action.payload };
-    
+    case "setMarketDataList":
+      return { ...state, marketDataList: action.payload };
+    case "setMarketDataListLoading":
+      return { ...state, marketDataListLoading: action.payload };
+    case "setFilterKeyword":
+      return { ...state, filterKeyword: action.payload };
     default:
       throw new Error();
   }
@@ -38,9 +47,9 @@ const counterReducer: Reducer<CounterState, CounterAction> = (
 const CounterContext = createContext<
   | {
       state: CounterState;
-      increment: () => void;
-      decrement: () => void;
       setShoppingData: (shoppingData: any) => void;
+      setFilterKeyword: (keyword: string) => void;
+      setMarketDataListAsync: () => void;
     }
   | undefined
 >(undefined);
@@ -48,14 +57,43 @@ const CounterContext = createContext<
 export function CounterProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(counterReducer, initialState);
 
-  const increment = () => dispatch({ type: "increment" });
-  const decrement = () => dispatch({ type: "decrement" });
   const setShoppingData = (payload: any) =>
     dispatch({ type: "setShoppingData", payload });
+  const setMarketDataList = (payload: any) =>
+    dispatch({ type: "setMarketDataList", payload });
+  const setMarketDataListLoading = (payload: any) =>
+    dispatch({ type: "setMarketDataListLoading", payload });
+  const setFilterKeyword = (payload: any) => {
+    dispatch({ type: "setFilterKeyword", payload });
+  };
+  const setMarketDataListAsync = async () => {
+    try {
+      setMarketDataListLoading(true);
+      const res = await listData();
+      debugger
+      const newL = res.sort(
+        (a: any, b: any) => b.registeredTimestamp - a.registeredTimestamp
+      );
+
+      setMarketDataList(newL);
+      setMarketDataListLoading(false);
+    } catch (e) {
+      console.log("listData  error:", e);
+    }
+  };
+  useEffect(() => {
+    setMarketDataListAsync();
+  }, []);
 
   return (
     <CounterContext.Provider
-      value={{ state, increment, decrement, setShoppingData }}
+      value={{
+        state,
+        setShoppingData,
+
+        setFilterKeyword,
+        setMarketDataListAsync,
+      }}
     >
       {children}
     </CounterContext.Provider>

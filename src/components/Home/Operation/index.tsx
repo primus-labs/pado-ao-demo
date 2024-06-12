@@ -23,6 +23,8 @@ import CounterContext from "../CounterContext";
 const Operation: FC = memo(() => {
   const {
     state: { shoppingData },
+    setShoppingData,
+    setMarketDataListAsync,
   } = useContext(CounterContext)!;
   const [address, setAddress] = useState<string>();
   const [form1] = Form.useForm();
@@ -44,6 +46,11 @@ const Operation: FC = memo(() => {
     setFileList([...fileList, file]);
     return false;
   };
+  const handleRemove = (file) => {
+    form2.resetFields();
+    setFileList([]);
+    return true;
+  };
 
   const handleConnect = async () => {
     if (address) {
@@ -64,6 +71,10 @@ const Operation: FC = memo(() => {
   };
 
   const onFinishForm1 = (values: any) => {
+    if (!address) {
+      alert("Please connect the wallet first");
+      return;
+    }
     console.log("The value of the form1:", values, form1.getFieldsValue()); // values 就是你的 userForm 对象
     setForm1Data({ ...form1.getFieldsValue() });
     setStep(2);
@@ -73,6 +84,9 @@ const Operation: FC = memo(() => {
   };
 
   const onFinishForm2 = (values: any) => {
+    if (fileList.length <= 0) {
+      return;
+    }
     setCreateLoading(true);
     console.log(
       "The value of the form2:",
@@ -80,7 +94,7 @@ const Operation: FC = memo(() => {
       form2.getFieldsValue(),
       form1.getFieldsValue(),
       form1Data
-    ); // values 就是你的 userForm 对象
+    );
     try {
       const file = values.uploadFile.fileList[0].originFileObj;
       if (file) {
@@ -94,7 +108,7 @@ const Operation: FC = memo(() => {
 
           // tag for the data
           const { dataType, dataName, dataDescription, dataPrice } = form1Data;
-          debugger;
+
           let dataTag = {
             dataType,
             dataName,
@@ -111,14 +125,13 @@ const Operation: FC = memo(() => {
             price: dataPrice * Math.pow(10, 3) + "",
             symbol: "AOCRED",
           };
-          debugger;
-
           const dataId = await uploadData(
             data,
             dataTag,
             priceInfo,
             window.arweaveWallet
           );
+          setMarketDataListAsync();
           setDataId(dataId);
           console.log(`DATAID=${dataId}`);
           setCreateLoading(false);
@@ -137,6 +150,8 @@ const Operation: FC = memo(() => {
     setStep((p) => --p);
   };
   const handleInit = () => {
+    debugger
+    setShoppingData({});
     form1.resetFields();
     form2.resetFields();
     setStep(1);
@@ -200,7 +215,7 @@ const Operation: FC = memo(() => {
     }
   }, [address]);
   useEffect(() => {
-    setOperationType(shoppingData ? "detail" : "create");
+    setOperationType(shoppingData?.id ?"detail" : "create");
   }, [shoppingData]);
   return (
     <div className="operationWrapper">
@@ -227,9 +242,6 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm1}
                   initialValues={{
                     dataType: "Text",
-                    dataName: "name2",
-                    dataDescription: "description2",
-                    dataPrice: 0.001,
                   }}
                   requiredMark={false}
                   className="operationForm"
@@ -324,6 +336,7 @@ const Operation: FC = memo(() => {
                       maxCount={1}
                       action=""
                       beforeUpload={beforeUpload}
+                      onRemove={handleRemove}
                       onSuccess={handleSuccess}
                       fileList={fileList}
                     >
@@ -398,7 +411,7 @@ const Operation: FC = memo(() => {
         )}
         {operationType === "detail" && (
           <>
-            <PBack onBack={handleBack} withLabel />
+            <PBack onBack={handleInit} withLabel />
             <div className="details">
               <div className="detailsCon">
                 <h5 className="detailsTitle">Details</h5>
@@ -406,7 +419,8 @@ const Operation: FC = memo(() => {
                   <li className="detailItem">
                     <div className="label">Owner</div>
                     <div className="value">
-                      vl4VbEYIab4HmxkzOg7U-H2DFe-gBV_3Uh8V9bwvuOY
+                      {shoppingData.dataTag &&
+                        JSON.parse(shoppingData.dataTag).ownerAddress}
                     </div>
                   </li>
                   <li className="detailItem">
@@ -416,26 +430,30 @@ const Operation: FC = memo(() => {
                   <li className="detailItem">
                     <div className="label">Data Type</div>
                     <div className="value">
-                      {JSON.parse(shoppingData.dataTag).dataType}
+                      {shoppingData.dataTag &&
+                        JSON.parse(shoppingData.dataTag).dataType}
                     </div>
                   </li>
                   <li className="detailItem">
                     <div className="label">Data Name</div>
                     <div className="value">
-                      {JSON.parse(shoppingData.dataTag).dataName}
+                      {shoppingData.dataTag &&
+                        JSON.parse(shoppingData.dataTag).dataName}
                     </div>
                   </li>
 
                   <li className="detailItem">
                     <div className="label">Price (AO)</div>
                     <div className="value">
-                      {JSON.parse(shoppingData.dataTag).dataPrice}
+                      {shoppingData.dataTag &&
+                        JSON.parse(shoppingData.dataTag).dataPrice}
                     </div>
                   </li>
                   <li className="detailItem">
                     <div className="label">Description</div>
                     <div className="value descriptionValue">
-                      {JSON.parse(shoppingData.dataTag).dataDescription}
+                      {shoppingData.dataTag &&
+                        JSON.parse(shoppingData.dataTag).dataDescription}
                     </div>
                   </li>
                 </ul>

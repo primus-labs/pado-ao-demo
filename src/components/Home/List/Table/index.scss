@@ -6,17 +6,12 @@
   width: 100%;
   @include fcss;
   box-sizing: border-box;
-
-  // gap: var(--spacing-16);
-  // .title {
-  //   @include HeadlineH3;
-  //   @include frsc;
-  //   gap: var(--spacing-4);
-  //   .num {
-  //     @include NumberBody100Semibold;
-  //     color: var(--text-tokens-text-tertiary);
-  //   }
-  // }
+  .ant-spin-nested-loading .ant-spin-container::after {
+    background: transparent;
+  }
+  .ant-spin-dot.ant-spin-dot-spin{
+    color: #f9f9f9;
+  }
   .tokenItems {
     border: 1px solid #393939;
     border-radius: 6px;
@@ -68,7 +63,7 @@
               }
               .selectOptionswrapper {
                 width: 77px;
-                top:32px;
+                top: 32px;
                 .dropdownOption {
                   .left {
                     .iconfont {
@@ -104,21 +99,30 @@
               .sortWrapper {
                 @include fcss;
                 gap: 2px;
-                .ascBtn,
-                .descBtn {
+                .sortBtn {
                   line-height: 1;
                   padding: 0;
                   font-size: 0;
                   .iconfont {
-                    font-size: 5px;
+                    font-size: 16px;
                     color: #6f6f6f;
                   }
                 }
-                .descBtn {
-                  .iconfont {
-                    transform: rotate(180deg);
-                  }
-                }
+                // .ascBtn,
+                // .descBtn {
+                //   line-height: 1;
+                //   padding: 0;
+                //   font-size: 0;
+                //   .iconfont {
+                //     font-size: 5px;
+                //     color: #6f6f6f;
+                //   }
+                // }
+                // .descBtn {
+                //   .iconfont {
+                //     transform: rotate(180deg);
+                //   }
+                // }
               }
             }
           }

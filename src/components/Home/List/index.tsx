@@ -1,11 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import CounterContext from "../CounterContext";
 import { Input } from "antd";
 import Table from "./Table";
 import "./index.scss";
 
 function List() {
+  const { setFilterKeyword } = useContext(CounterContext)!;
   const [filter, setFilter] = useState("");
-  const handlePressEnter = () => {};
+  const handlePressEnter = (e: any) => {
+    setFilterKeyword(e.target.value);
+  };
   const handleChange = (e: any) => {
     setFilter(e.target.value);
   };
@@ -18,7 +22,6 @@ function List() {
         </header>
         <Input
           placeholder="Filter data..."
-          allowClear
           onPressEnter={handlePressEnter}
           onChange={handleChange}
           value={filter}
