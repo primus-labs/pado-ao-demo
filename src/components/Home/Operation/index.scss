@@ -29,10 +29,15 @@
       font-weight: 500;
       line-height: 20px;
       letter-spacing: 0px;
-
       color: #fafafa;
       &.ant-btn-primary:not(:disabled):not(.ant-btn-disabled):hover {
         background-color: #18181b;
+      }
+      &.ant-btn-primary:disabled,
+      .ant-btn-primary.ant-btn-disabled {
+        border-color: #d9d9d9;
+        color: rgba(0, 0, 0, 0.25);
+        background: rgba(0, 0, 0, 0.04);
       }
     }
     header {
@@ -168,7 +173,7 @@
             border-top: 1px dashed #e4e4e7;
             border-bottom: 1px dashed #e4e4e7;
             cursor: pointer;
-            >.ant-upload{
+            > .ant-upload {
               @include fccc;
             }
             .uploadBtn {
@@ -270,8 +275,69 @@
               overflow: hidden;
               text-overflow: ellipsis;
             }
+            .descriptionValue {
+              word-break: break-all;
+            }
           }
         }
+      }
+    }
+    .buyProcess {
+      width: 100%;
+      @include fcbs;
+      height: 420px;
+      .fileDesc {
+        width: 100%;
+        @include frbc;
+        .name {
+          @include frsc;
+          gap: 16px;
+
+          font-family: Inter;
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 16px;
+          letter-spacing: 0px;
+
+          color: #242634;
+
+          .iconfont {
+            font-size: 16px;
+          }
+          > span {
+            max-width: 252px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+        .size {
+          @include frcc;
+
+          padding: 4px 8px;
+
+          box-sizing: border-box;
+
+          border: 1px solid #cdd3d8;
+
+          font-family: Inter;
+          font-size: 11px;
+          font-weight: 600;
+          line-height: 12px;
+          text-align: center;
+          letter-spacing: 0px;
+
+          color: #242634;
+        }
+      }
+      .processDesc {
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 16.38px;
+        letter-spacing: -0.21px;
+
+        color: #64748b;
       }
     }
     .okBtn {

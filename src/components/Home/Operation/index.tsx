@@ -5,14 +5,8 @@ import {
   uploadData,
 } from "@padolabs/pado-ao-sdk";
 import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
-import React, {
-  useState,
-  useContext,
-  useEffect,
-  memo,
-  FC,
-  useMemo,
-} from "react";
+import { UploadFile } from "antd/lib/upload";
+import { useState, useContext, useEffect, memo, FC, useMemo } from "react";
 import "./index.scss";
 import PButton from "@/components/PButton";
 import PBack from "@/components/PBack";
@@ -24,6 +18,7 @@ const Operation: FC = memo(() => {
   const {
     state: { shoppingData },
     setShoppingData,
+    setOwnerAddress,
     setMarketDataListAsync,
   } = useContext(CounterContext)!;
   const [address, setAddress] = useState<string>();
@@ -31,24 +26,42 @@ const Operation: FC = memo(() => {
   const [form2] = Form.useForm();
   const [operationType, setOperationType] = useState("create");
   const [step, setStep] = useState(1);
-  const [fileList, setFileList] = useState([]);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [dataId, setDataId] = useState<string>();
   const [taskMsg, setTaskMsg] = useState<string>();
-  const [fileData, setFileData] = useState();
-  const [form1Data, setForm1Data] = useState({});
+  const [fileData, setFileData] = useState<any>();
+  const [form1Data, setForm1Data] = useState<{
+    dataType?: string;
+    dataName?: string;
+    dataDescription?: string;
+    dataPrice?: number;
+  }>({});
   const [createLoading, setCreateLoading] = useState<boolean>(false);
-  const [buyDataLoading, setBuyDataLoading] = useState<boolean>(false);
+  // const [buyDataLoading, setBuyDataLoading] = useState<boolean>(false);
 
-  const handleSuccess = (response, file) => {
-    file.response = { status: "success" };
+  const formatSize = (fileSize: number) => {
+    const kbNum = fileSize / 1024;
+    if (kbNum < 1024) {
+      return kbNum.toFixed(2) + "KB";
+    } else {
+      const mNum = kbNum / 1024;
+      if (mNum < 1024) {
+        return mNum.toFixed(2) + "M";
+      } else {
+        const gNum = mNum / 1024;
+        return gNum.toFixed(2) + "G";
+      }
+    }
   };
-  const beforeUpload = (file) => {
+
+  const beforeUpload = (file: UploadFile) => {
     setFileList([...fileList, file]);
     return false;
   };
-  const handleRemove = (file) => {
+  const handleRemove = () => {
     form2.resetFields();
     setFileList([]);
+    setFileData(undefined);
     return true;
   };
 
@@ -62,12 +75,13 @@ const Operation: FC = memo(() => {
         ["ACCESS_ADDRESS", "SIGN_TRANSACTION"]
       );
     } catch (e) {
-      console.log(e);
+      console.log("handleConnect error:", e);
     } finally {
     }
     const addressTmp = await window.arweaveWallet.getActiveAddress();
 
     setAddress(addressTmp);
+    setOwnerAddress(addressTmp);
   };
 
   const onFinishForm1 = (values: any) => {
@@ -102,7 +116,7 @@ const Operation: FC = memo(() => {
         const reader = new FileReader();
 
         reader.readAsArrayBuffer(file);
-        reader.onload = async (e) => {
+        reader.onload = async (e: any) => {
           const content = e.target.result;
           const data = new Uint8Array(content);
 
@@ -122,7 +136,7 @@ const Operation: FC = memo(() => {
 
           // price for the data
           let priceInfo = {
-            price: dataPrice * Math.pow(10, 3) + "",
+            price: (dataPrice as number) * Math.pow(10, 3) + "",
             symbol: "AOCRED",
           };
           const dataId = await uploadData(
@@ -150,42 +164,52 @@ const Operation: FC = memo(() => {
     setStep((p) => --p);
   };
   const handleInit = () => {
-    debugger
     setShoppingData({});
     form1.resetFields();
     form2.resetFields();
     setStep(1);
   };
   async function submitTaskAndGetResult() {
-    setBuyDataLoading(true);
-    setTaskMsg("generate key");
-    let key = await generateKey();
+    if (!address) {
+      alert("Please connect the wallet first");
+      return;
+    }
+    setStep(2);
+    // setBuyDataLoading(true);
+    try {
+      setTaskMsg("generate key...");
+      let key = await generateKey();
 
-    setTaskMsg("submit task");
-    const taskId = await submitTask(
-      shoppingData.id,
-      key.pk,
-      window.arweaveWallet
-    );
-    console.log(`TASKID=${taskId}`);
-    setTaskMsg("get task result");
-    const [err, data] = await getResult(taskId, key.sk)
-      .then((data) => {
-        setTaskMsg("");
-        return [null, data];
-      })
-      .catch((err) => {
-        setTaskMsg("");
-        alert(err);
-        return [err, null];
-      });
-    console.log(`err=${err}`);
-    console.log(`data=${data}`);
-    //for test
-    if (data) {
-      setFileData(data);
-      // downloadArrayBufferAsFile(data);
-      setBuyDataLoading(false);
+      setTaskMsg("submit task...");
+      const taskId = await submitTask(
+        shoppingData.id,
+        key.pk,
+        window.arweaveWallet
+      );
+      console.log(`TASKID=${taskId}`);
+      setTaskMsg("get task result...");
+      const [err, data] = await getResult(taskId, key.sk)
+        .then((data) => {
+          setTaskMsg("");
+          setTaskMsg("BuyFinished");
+          return [null, data];
+        })
+        .catch((err) => {
+          setTaskMsg(`error: ${err}`);
+          alert(err);
+          return [err, null];
+        });
+      
+      console.log(`err=${err}`);
+      console.log(`data=${data}`);
+      //for test
+      if (data) {
+        setFileData(data);
+        // downloadArrayBufferAsFile(data);
+        // setBuyDataLoading(false);
+      }
+    } catch (e) {
+      console.log("submitTaskAndGetResult error: ", e);
     }
   }
 
@@ -215,7 +239,7 @@ const Operation: FC = memo(() => {
     }
   }, [address]);
   useEffect(() => {
-    setOperationType(shoppingData?.id ?"detail" : "create");
+    setOperationType(shoppingData?.id ? "detail" : "create");
   }, [shoppingData]);
   return (
     <div className="operationWrapper">
@@ -337,7 +361,6 @@ const Operation: FC = memo(() => {
                       action=""
                       beforeUpload={beforeUpload}
                       onRemove={handleRemove}
-                      onSuccess={handleSuccess}
                       fileList={fileList}
                     >
                       <PButton
@@ -411,71 +434,94 @@ const Operation: FC = memo(() => {
         )}
         {operationType === "detail" && (
           <>
-            <PBack onBack={handleInit} withLabel />
-            <div className="details">
-              <div className="detailsCon">
-                <h5 className="detailsTitle">Details</h5>
-                <ul className="detailItems">
-                  <li className="detailItem">
-                    <div className="label">Owner</div>
-                    <div className="value">
-                      {shoppingData.dataTag &&
-                        JSON.parse(shoppingData.dataTag).ownerAddress}
-                    </div>
-                  </li>
-                  <li className="detailItem">
-                    <div className="label">Data ID</div>
-                    <div className="value">{shoppingData.id}</div>
-                  </li>
-                  <li className="detailItem">
-                    <div className="label">Data Type</div>
-                    <div className="value">
-                      {shoppingData.dataTag &&
-                        JSON.parse(shoppingData.dataTag).dataType}
-                    </div>
-                  </li>
-                  <li className="detailItem">
-                    <div className="label">Data Name</div>
-                    <div className="value">
-                      {shoppingData.dataTag &&
-                        JSON.parse(shoppingData.dataTag).dataName}
-                    </div>
-                  </li>
+            {step === 1 && (
+              <>
+                <PBack onBack={handleInit} withLabel />
+                <div className="details">
+                  <div className="detailsCon">
+                    <h5 className="detailsTitle">Details</h5>
+                    <ul className="detailItems">
+                      <li className="detailItem">
+                        <div className="label">Owner</div>
+                        <div className="value">
+                          {shoppingData.dataTag &&
+                            JSON.parse(shoppingData.dataTag).ownerAddress}
+                        </div>
+                      </li>
+                      <li className="detailItem">
+                        <div className="label">Data ID</div>
+                        <div className="value">{shoppingData.id}</div>
+                      </li>
+                      <li className="detailItem">
+                        <div className="label">Data Type</div>
+                        <div className="value">
+                          {shoppingData.dataTag &&
+                            JSON.parse(shoppingData.dataTag).dataType}
+                        </div>
+                      </li>
+                      <li className="detailItem">
+                        <div className="label">Data Name</div>
+                        <div className="value">
+                          {shoppingData.dataTag &&
+                            JSON.parse(shoppingData.dataTag).dataName}
+                        </div>
+                      </li>
 
-                  <li className="detailItem">
-                    <div className="label">Price (AO)</div>
-                    <div className="value">
-                      {shoppingData.dataTag &&
-                        JSON.parse(shoppingData.dataTag).dataPrice}
+                      <li className="detailItem">
+                        <div className="label">Price (AO)</div>
+                        <div className="value">
+                          {shoppingData.dataTag &&
+                            JSON.parse(shoppingData.dataTag).dataPrice}
+                        </div>
+                      </li>
+                      <li className="detailItem">
+                        <div className="label">Description</div>
+                        <div className="value descriptionValue">
+                          {shoppingData.dataTag &&
+                            JSON.parse(shoppingData.dataTag).dataDescription}
+                        </div>
+                      </li>
+                    </ul>
+                  </div>
+                  <Button
+                    type="primary"
+                    onClick={submitTaskAndGetResult}
+                    className="okBtn"
+                  >
+                    Buy
+                  </Button>
+                </div>
+              </>
+            )}
+            {step === 2 && (
+              <>
+                <PBack onBack={handleBack} withLabel />
+                <div className="buyProcess">
+                  {fileData ? (
+                    <div className="fileDesc">
+                      <div className="name">
+                        <i className="iconfont icon-iconUploadFile"></i>
+                        <span>{JSON.parse(shoppingData.dataTag).fileName}</span>
+                      </div>
+                      <div className="size">
+                        {formatSize(JSON.parse(shoppingData.dataTag).fileSize)}
+                      </div>
                     </div>
-                  </li>
-                  <li className="detailItem">
-                    <div className="label">Description</div>
-                    <div className="value descriptionValue">
-                      {shoppingData.dataTag &&
-                        JSON.parse(shoppingData.dataTag).dataDescription}
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <Button
-                type="primary"
-                onClick={submitTaskAndGetResult}
-                className="okBtn"
-                loading={buyDataLoading}
-              >
-                Buy
-              </Button>
-              {fileData && (
-                <Button
-                  type="primary"
-                  onClick={downloadArrayBufferAsFile}
-                  className="okBtn"
-                >
-                  Download
-                </Button>
-              )}
-            </div>
+                  ) : (
+                    <div className="processDesc">{taskMsg}</div>
+                  )}
+
+                  <Button
+                    type="primary"
+                    onClick={downloadArrayBufferAsFile}
+                    className="okBtn"
+                    disabled={!fileData}
+                  >
+                    Download
+                  </Button>
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

@@ -6,6 +6,7 @@ interface CounterState {
   marketDataList: any;
   marketDataListLoading: boolean;
   filterKeyword: string;
+  ownerAddress: string;
 }
 
 interface CounterAction {
@@ -13,7 +14,8 @@ interface CounterAction {
     | "setShoppingData"
     | "setMarketDataList"
     | "setFilterKeyword"
-    | "setMarketDataListLoading";
+    | "setMarketDataListLoading"
+    | "setOwnerAddress";
   payload?: any;
 }
 
@@ -22,6 +24,7 @@ const initialState: CounterState = {
   marketDataList: [],
   marketDataListLoading: false,
   filterKeyword: "",
+  ownerAddress: "",
 };
 
 // 创建一个reducer来处理状态更新
@@ -38,6 +41,8 @@ const counterReducer: Reducer<CounterState, CounterAction> = (
       return { ...state, marketDataListLoading: action.payload };
     case "setFilterKeyword":
       return { ...state, filterKeyword: action.payload };
+    case "setOwnerAddress":
+      return { ...state, ownerAddress: action.payload };
     default:
       throw new Error();
   }
@@ -50,6 +55,7 @@ const CounterContext = createContext<
       setShoppingData: (shoppingData: any) => void;
       setFilterKeyword: (keyword: string) => void;
       setMarketDataListAsync: () => void;
+      setOwnerAddress: (address: string) => void;
     }
   | undefined
 >(undefined);
@@ -66,15 +72,16 @@ export function CounterProvider({ children }: { children: React.ReactNode }) {
   const setFilterKeyword = (payload: any) => {
     dispatch({ type: "setFilterKeyword", payload });
   };
+  const setOwnerAddress = (payload: any) => {
+    dispatch({ type: "setOwnerAddress", payload });
+  };
   const setMarketDataListAsync = async () => {
     try {
       setMarketDataListLoading(true);
       const res = await listData();
-      debugger
       const newL = res.sort(
         (a: any, b: any) => b.registeredTimestamp - a.registeredTimestamp
       );
-
       setMarketDataList(newL);
       setMarketDataListLoading(false);
     } catch (e) {
@@ -84,13 +91,16 @@ export function CounterProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMarketDataListAsync();
   }, []);
+  // useEffect(() => {
+  //   alert(1)
+  // })
 
   return (
     <CounterContext.Provider
       value={{
         state,
         setShoppingData,
-
+        setOwnerAddress,
         setFilterKeyword,
         setMarketDataListAsync,
       }}

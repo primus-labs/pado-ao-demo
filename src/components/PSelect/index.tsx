@@ -35,7 +35,6 @@ interface PSelectProps {
   showIcon?: boolean;
   showSelf?: boolean;
   optionSuffix?: any;
-  tooltip?: any;
 }
 
 const PSelect: React.FC<PSelectProps> = memo(
@@ -52,7 +51,6 @@ const PSelect: React.FC<PSelectProps> = memo(
     className,
     align = "vertical",
     optionSuffix = "",
-    tooltip,
   }) => {
     const [optionsVisible, setOptionsVisible] = useState(false);
 
@@ -113,7 +111,7 @@ const PSelect: React.FC<PSelectProps> = memo(
     }, [disabled, className, align]);
 
     const handleClickDropdownItem = useCallback(
-      (value: string, item) => {
+      (value: string, item: any) => {
         onChange(value, item);
       },
       [onChange]

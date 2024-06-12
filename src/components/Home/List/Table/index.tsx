@@ -1,12 +1,4 @@
-import React, {
-  memo,
-  useCallback,
-  useState,
-  useMemo,
-  FC,
-  useContext,
-  useEffect,
-} from "react";
+import { memo, useState, useMemo, FC, useContext } from "react";
 import { Pagination, Spin } from "antd";
 import PButton from "@/components/PButton";
 import PSelect from "@/components/PSelect";
@@ -19,26 +11,26 @@ interface TokenTableProps {}
 
 const Table: FC<TokenTableProps> = memo(({}) => {
   const {
-    state: { marketDataList, filterKeyword, marketDataListLoading },
+    state: {
+      marketDataList,
+      filterKeyword,
+      marketDataListLoading,
+      ownerAddress,
+    },
     setShoppingData,
   } = useContext(CounterContext)!;
   const [current, setCurrent] = useState(1);
   const [filterType, setFilterType] = useState("");
   const [sortOrder, setSortOrder] = useState("");
 
-  const pageChangedFn = (page) => {
-    if (page === "pre") {
-      page = current - 1;
-    }
-    if (page === "next") {
-      page = current + 1;
-    }
-    if (page < 1) {
-      page = 1;
-    }
-    setCurrent(page);
+  const pageChangedFn = (pageNumber: number) => {
+    setCurrent(pageNumber);
   };
-  const handleAddToShoppingCart = (j: any) => {
+  const handleAddToShoppingCart = async (j: any) => {
+    if (!ownerAddress) {
+      alert("Please connect the wallet first");
+      return;
+    }
     setShoppingData(j);
   };
   const filterTypeList = [
@@ -61,8 +53,8 @@ const Table: FC<TokenTableProps> = memo(({}) => {
   const filteredDataList = useMemo(() => {
     let filteredList = [...marketDataList];
     if (filterKeyword) {
-      filteredList = marketDataList.filter((i) => {
-        const { id, dataTag } = i;
+      filteredList = marketDataList.filter((i: any) => {
+        const { id } = i;
         // const dataTagObj = JSON.parse(dataTag);
         // dataTagObj.dataName.startsWith(filterKeyWord)
         return id.toLowerCase().startsWith(filterKeyword.toLowerCase());
@@ -76,8 +68,8 @@ const Table: FC<TokenTableProps> = memo(({}) => {
       });
     }
     if (sortOrder) {
-      let list1 = [];
-      let list2 = [];
+      let list1: any[] = [];
+      let list2: any[] = [];
       filteredList.forEach((i) => {
         if (i.dataTag) {
           const { dataPrice } = JSON.parse(i.dataTag);
@@ -99,6 +91,7 @@ const Table: FC<TokenTableProps> = memo(({}) => {
         if (sortOrder === "desc") {
           return dataPriceB - dataPriceA;
         }
+        return dataPriceB - dataPriceA;
       });
       filteredList = [...list1, ...list2];
     }
@@ -148,7 +141,7 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                   </div>
                 </div>
                 <div className="price">
-                  {j.dataTag ? JSON.parse(j.dataTag).dataPrice : ""}
+                  {j.price ? JSON.parse(j.price).price / Math.pow(10, 3) : ""}
                 </div>
                 <div className="operation">
                   <PButton

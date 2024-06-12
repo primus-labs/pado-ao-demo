@@ -1,13 +1,11 @@
-import React, { useState, useRef, useMemo, memo, useEffect } from 'react';
-import type { ChangeEvent, KeyboardEvent } from 'react';
-import PButton from '@/newComponents/PButton';
-import PTooltip from '@/newComponents/PTooltip';
-import './index.scss';
+import React, { useState, useRef, useMemo, memo } from "react";
+import type { ChangeEvent, KeyboardEvent } from "react";
+import "./index.scss";
 
 interface PInputProps {
   onChange: (val: string) => void;
   onFocus?: () => void;
-  type?: 'text' | 'password';
+  type?: "text" | "password";
   placeholder?: string;
   label?: string;
   value?: string;
@@ -27,34 +25,32 @@ const PInput: React.FC<PInputProps> = memo(
   ({
     onChange,
     onFocus,
-    type = 'text',
-    placeholder = '',
+    type = "text",
+    placeholder = "",
     onSearch,
     label,
     value,
     errorTip,
     helpTip,
     disabled = false,
-    copiable = false,
-    tooltip,
+
     prefix,
     className,
-    align = 'vertical',
+    align = "vertical",
   }) => {
     const inputEl = useRef<any>(null);
-    const [val, setVal] = useState<string>('');
-    const [copied, setCopied] = useState<boolean>(false);
+    // const [val, setVal] = useState<string>("");
     const [open, setOpen] = useState<boolean>(false);
     const visible = useMemo(() => {
-      return type === 'password';
+      return type === "password";
     }, [type]);
     const formatCN = useMemo(() => {
-      let cN = 'PInputWrapper';
+      let cN = "PInputWrapper";
       if (disabled) {
-        cN += ' disabled';
+        cN += " disabled";
       }
       if (!!errorTip) {
-        cN += ' error';
+        cN += " error";
       }
       if (align) {
         cN += ` ${align}`;
@@ -66,7 +62,7 @@ const PInput: React.FC<PInputProps> = memo(
     }, [disabled, errorTip, className, align]);
     const activeType = useMemo(() => {
       if (visible) {
-        return open ? 'text' : 'password';
+        return open ? "text" : "password";
       } else {
         return type;
       }
@@ -99,44 +95,16 @@ const PInput: React.FC<PInputProps> = memo(
       }
     };
 
-    const onClickTooltip = () => {
-      if (tooltip?.link) {
-        if (
-          tooltip.link.startsWith('http') ||
-          tooltip.link.startsWith('https')
-        ) {
-          window.open(tooltip.link);
-        }
-      }
-    };
-    useEffect(() => {
-      if (value !== null && value !== undefined) {
-        setVal(value);
-      }
-    }, [value]);
+    // useEffect(() => {
+    //   if (value !== null && value !== undefined) {
+    //     setVal(value);
+    //   }
+    // }, [value]);
     return (
       <div className={formatCN}>
         {label && (
           <label>
             <span>{label}</span>
-            {tooltip?.link && (
-              <PButton
-                className="tooltipBtn"
-                type="icon"
-                icon={<i className="iconfont icon-iconTooltip"></i>}
-                onClick={onClickTooltip}
-              />
-            )}
-            {tooltip?.text && (
-              <PTooltip title={tooltip.text}>
-                <PButton
-                  type="icon"
-                  icon={<i className="iconfont icon-iconInfo"></i>}
-                  onClick={() => {}}
-                  className="tooltipBtn"
-                />
-              </PTooltip>
-            )}
           </label>
         )}
         <div className="inputWrapper">
@@ -165,9 +133,9 @@ const PInput: React.FC<PInputProps> = memo(
           {visible && (
             <i
               className={
-                activeType === 'password'
-                  ? 'iconfont icon-EyeClose'
-                  : 'iconfont icon-EyeOpen'
+                activeType === "password"
+                  ? "iconfont icon-EyeClose"
+                  : "iconfont icon-EyeOpen"
               }
               onClick={handleLookPwd}
             ></i>

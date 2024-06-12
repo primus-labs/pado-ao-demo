@@ -1,5 +1,5 @@
-import React, { memo, useCallback, useMemo } from 'react';
-import './index.scss';
+import React, { memo, useCallback, useMemo } from "react";
+import "./index.scss";
 
 type NavItem = {
   iconName?: any;
@@ -20,19 +20,19 @@ interface PDropdownProps {
 }
 
 const PDropdown: React.FC<PDropdownProps> = memo(
-  ({ onClick = () => {}, list, value, showSelf, optionSuffix }) => {
+  ({ onClick = () => {}, list, value, optionSuffix }) => {
     const includeAll = useMemo(() => {
-      const includeA = list.find((i) => i.value === 'All');
+      const includeA = list.find((i) => i.value === "All");
       return !!includeA;
     }, []);
     const formatOptionCN = useCallback(
-      (item) => {
-        let str = 'dropdownOption';
+      (item: any) => {
+        let str = "dropdownOption";
         if (item?.disabled) {
-          str += ' disabled';
+          str += " disabled";
         }
         if (value === item.value && !includeAll) {
-          str += ' selected';
+          str += " selected";
         }
 
         return str;
@@ -71,7 +71,7 @@ const PDropdown: React.FC<PDropdownProps> = memo(
                     ) : undefined}
                     <div className={`desc`}>{item.label}</div>
                   </div>
-                 
+
                   {optionSuffix}
                 </div>
               </li>
