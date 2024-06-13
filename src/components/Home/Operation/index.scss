@@ -167,33 +167,124 @@
             width: 350px;
             // display: flex;
           }
-          .ant-upload-wrapper > .ant-upload {
-            @include fccc;
-            gap: 12px;
-            border-top: 1px dashed #e4e4e7;
-            border-bottom: 1px dashed #e4e4e7;
-            cursor: pointer;
+          .ant-upload-wrapper {
+            .ant-upload-list {
+              display: none;
+            }
             > .ant-upload {
               @include fccc;
-            }
-            .uploadBtn {
-              padding: 0;
-              border: 0 !important;
-              .iconfont {
-                font-size: 16px;
-                color: #09090b;
+              gap: 12px;
+              border: 1px dashed #e4e4e7;
+              border-radius: 6px;
+              box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.05);
+              cursor: pointer;
+              > .ant-upload {
+                @include fccc;
+              }
+              .uploadBtn {
+                padding: 0;
+                border: 0 !important;
+                .iconfont {
+                  font-size: 16px;
+                  color: #09090b;
+                }
+              }
+              p {
+                font-family: Inter;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 20px;
+                text-align: center;
+                letter-spacing: 0px;
+
+                color: #71717a;
               }
             }
-            p {
+            .uploadProcessDesc {
               font-family: Inter;
               font-size: 12px;
               font-weight: normal;
-              line-height: 20px;
+              line-height: 14px;
+              letter-spacing: 0px;
+              color: #64748b;
+            }
+          }
+          .uploadFileWrapper {
+            width: 100%;
+            margin-top: 16px;
+            @include fcss;
+            .title {
+              font-family: Inter;
+              font-size: 14px;
+              font-weight: 500;
+              line-height: 14px;
               text-align: center;
+              display: flex;
+              align-items: center;
               letter-spacing: 0px;
 
-              color: #71717a;
+              color: #161616;
             }
+            .fileInfo {
+              width: 100%;
+              @include frbc;
+              box-sizing: border-box;
+              border: 0.5px solid #e3e3e3;
+              height: 36px;
+              padding: 10px 12px;
+              border-radius: 4px;
+              margin: 8px 0;
+              position: relative;
+              .intro {
+                @include frsc;
+                gap: 12px;
+
+                .iconfont {
+                  font-size: 16px;
+                }
+                .name {
+                  font-family: Inter;
+                  font-size: 12px;
+                  font-weight: normal;
+                  line-height: 12px;
+                  text-align: center;
+                  display: flex;
+                  align-items: center;
+                  letter-spacing: 0px;
+                  color: #525252;
+                }
+              }
+              .deleteBtn {
+                font-size: 0;
+                height: auto;
+                line-height: 1;
+                .iconfont {
+                  font-size: 12px;
+                  color: #525252;
+                }
+              }
+              .progressBar {
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                height: 3px;
+                background: #0a1214;
+                border-radius: 10px;
+              }
+            }
+          }
+        }
+        .btnWithTipWrapper {
+          width: 100%;
+          @include fcss;
+          gap: 8px;
+          > p {
+            font-family: Inter;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 14px;
+            letter-spacing: 0px;
+            color: #64748b;
           }
         }
       }

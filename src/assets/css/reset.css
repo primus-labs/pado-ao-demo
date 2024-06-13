@@ -100,6 +100,10 @@ button {
 button:hover {
   cursor: pointer;
 }
+button:active, button:focus{
+  border: 0;
+  outline: 0;
+}
 body {
   /* font-size: 12px;
   line-height: 1;

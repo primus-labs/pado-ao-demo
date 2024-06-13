@@ -3,10 +3,20 @@ import {
   getResult,
   submitTask,
   uploadData,
+  encryptData,
+  submitData,
 } from "@padolabs/pado-ao-sdk";
 import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
 import { UploadFile } from "antd/lib/upload";
-import { useState, useContext, useEffect, memo, FC, useMemo } from "react";
+import {
+  useState,
+  useContext,
+  useEffect,
+  memo,
+  FC,
+  useMemo,
+  useRef,
+} from "react";
 import "./index.scss";
 import PButton from "@/components/PButton";
 import PBack from "@/components/PBack";
@@ -28,6 +38,7 @@ const Operation: FC = memo(() => {
   const [step, setStep] = useState(1);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [dataId, setDataId] = useState<string>();
+  const [enData, setEnData] = useState<any>();
   const [taskMsg, setTaskMsg] = useState<string>();
   const [fileData, setFileData] = useState<any>();
   const [form1Data, setForm1Data] = useState<{
@@ -37,6 +48,7 @@ const Operation: FC = memo(() => {
     dataPrice?: number;
   }>({});
   const [createLoading, setCreateLoading] = useState<boolean>(false);
+  const progressWidthRef = useRef(0);
   // const [buyDataLoading, setBuyDataLoading] = useState<boolean>(false);
 
   const formatSize = (fileSize: number) => {
@@ -53,20 +65,25 @@ const Operation: FC = memo(() => {
       }
     }
   };
-
-  const beforeUpload = (file: UploadFile) => {
-    setFileList([...fileList, file]);
-    return false;
-  };
-  const handleRemove = () => {
-    form2.resetFields();
-    setFileList([]);
-    setFileData(undefined);
-    return true;
-  };
+  const formatAddress = useMemo(() => {
+    if (address) {
+      const startS = address.substr(0, 7);
+      const endS = address.substr(-5);
+      return `${startS}...${endS}`;
+    } else {
+      return "";
+    }
+  }, [address]);
 
   const handleConnect = async () => {
     if (address) {
+      return;
+    }
+    if (!window.arweaveWallet) {
+      alert("Please install the arconnect wallet first!");
+      window.open(
+        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
+      );
       return;
     }
     try {
@@ -83,7 +100,25 @@ const Operation: FC = memo(() => {
     setAddress(addressTmp);
     setOwnerAddress(addressTmp);
   };
-
+  const beforeUpload = (file: UploadFile) => {
+    setFileList([...fileList, file]);
+    return false;
+  };
+  const handleRemove = () => {
+    form2.resetFields();
+    setFileList([]);
+    setFileData(undefined);
+    return true;
+  };
+  const handleBack = () => {
+    setStep((p) => --p);
+  };
+  const handleInit = () => {
+    setShoppingData({});
+    form1.resetFields();
+    form2.resetFields();
+    setStep(1);
+  };
   const onFinishForm1 = (values: any) => {
     if (!address) {
       alert("Please connect the wallet first");
@@ -97,7 +132,7 @@ const Operation: FC = memo(() => {
     console.log("Form1 validation failed:", errorInfo);
   };
 
-  const onFinishForm2 = (values: any) => {
+  const onFinishForm2 = async (values: any) => {
     if (fileList.length <= 0) {
       return;
     }
@@ -110,65 +145,66 @@ const Operation: FC = memo(() => {
       form1Data
     );
     try {
-      const file = values.uploadFile.fileList[0].originFileObj;
+      const file = fileList[0];
       if (file) {
         const { name: fileName, size: fileSize, type: fileType } = file;
-        const reader = new FileReader();
+        // tag for the data
+        const { dataType, dataName, dataDescription, dataPrice } = form1Data;
 
-        reader.readAsArrayBuffer(file);
-        reader.onload = async (e: any) => {
-          const content = e.target.result;
-          const data = new Uint8Array(content);
-
-          // tag for the data
-          const { dataType, dataName, dataDescription, dataPrice } = form1Data;
-
-          let dataTag = {
-            dataType,
-            dataName,
-            dataDescription,
-            dataPrice,
-            fileType,
-            fileName,
-            fileSize,
-            ownerAddress: address,
-          };
-
-          // price for the data
-          let priceInfo = {
-            price: (dataPrice as number) * Math.pow(10, 3) + "",
-            symbol: "AOCRED",
-          };
-          const dataId = await uploadData(
-            data,
-            dataTag,
-            priceInfo,
-            window.arweaveWallet
-          );
-          setMarketDataListAsync();
-          setDataId(dataId);
-          console.log(`DATAID=${dataId}`);
-          setCreateLoading(false);
-          setStep(3);
+        let dataTag = {
+          dataType,
+          dataName,
+          dataDescription,
+          dataPrice,
+          fileType,
+          fileName,
+          fileSize,
+          ownerAddress: address,
         };
+
+        // price for the data
+        let priceInfo = {
+          price: (dataPrice as number) * Math.pow(10, 3) + "",
+          symbol: "AOCRED",
+        };
+        // const dataId = await uploadData(
+        //   data,
+        //   dataTag,
+        //   priceInfo,
+        //   window.arweaveWallet
+        // );
+        // const enData = await encryptData(data);
+        const dataId = await submitData(
+          enData,
+          dataTag,
+          priceInfo,
+          window.arweaveWallet
+        );
+        setMarketDataListAsync();
+        setDataId(dataId);
+        console.log(`DATAID=${dataId}`);
+
+        setStep(3);
+        // };
       }
-    } catch (e) {
-      console.log("onFinishForm2 e:", e);
+    } catch (e: any) {
+      // Unable to upload transaction: 400, Transaction verification failed.
+      console.log("onFinishForm2 error:", e.message);
+      if (
+        e?.message.indexOf(
+          "Unable to upload transaction: 400, Transaction verification failed."
+        ) > -1
+      ) {
+        alert("Need AR token in your Arconnect wallet.");
+      }
+    } finally {
+      setCreateLoading(false);
     }
   };
   const onFinishFailedForm2 = (errorInfo: any) => {
     console.log("Form2 validation failed:", errorInfo);
   };
 
-  const handleBack = () => {
-    setStep((p) => --p);
-  };
-  const handleInit = () => {
-    setShoppingData({});
-    form1.resetFields();
-    form2.resetFields();
-    setStep(1);
-  };
   async function submitTaskAndGetResult() {
     if (!address) {
       alert("Please connect the wallet first");
@@ -199,7 +235,7 @@ const Operation: FC = memo(() => {
           alert(err);
           return [err, null];
         });
-      
+
       console.log(`err=${err}`);
       console.log(`data=${data}`);
       //for test
@@ -229,18 +265,52 @@ const Operation: FC = memo(() => {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
   }
-  const formatAddress = useMemo(() => {
-    if (address) {
-      const startS = address.substr(0, 7);
-      const endS = address.substr(-5);
-      return `${startS}...${endS}`;
-    } else {
-      return "";
-    }
-  }, [address]);
+
   useEffect(() => {
     setOperationType(shoppingData?.id ? "detail" : "create");
   }, [shoppingData]);
+  useEffect(() => {
+    if (fileList.length > 0) {
+      const encryptFn = async () => {
+        setTaskMsg("encrypt data...");
+        const progressTimer = setInterval(() => {
+          progressWidthRef.current = progressWidthRef.current + 1;
+          if (progressWidthRef.current === 30) {
+            setTaskMsg("encrypt data...");
+          }
+          if (progressWidthRef.current === 100) {
+            clearInterval(progressTimer);
+            setTaskMsg("");
+          }
+        }, 30);
+
+        try {
+          const file = fileList[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = async (e: any) => {
+              const content = e.target.result;
+              const data = new Uint8Array(content);
+              const enData = await encryptData(data);
+              clearInterval(progressTimer);
+              progressWidthRef.current = 100;
+              setEnData(enData);
+              setTaskMsg("");
+              console.log(`enData=${enData}`);
+            };
+          }
+        } catch (e) {
+          console.log("encryptData error:", e);
+        }
+      };
+      encryptFn();
+    }
+  }, [fileList]);
+  const handleClickUploadBtn = () => {
+    if (fileList.length > 0) {
+    }
+  };
   return (
     <div className="operationWrapper">
       <PButton
@@ -266,6 +336,9 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm1}
                   initialValues={{
                     dataType: "Text",
+                    dataName: "name12",
+                    dataDescription: "hfidfdfd",
+                    dataPrice: 0.001,
                   }}
                   requiredMark={false}
                   className="operationForm"
@@ -355,32 +428,84 @@ const Operation: FC = memo(() => {
                       { required: true, message: "${label} is required" },
                     ]}
                   >
-                    <Upload
-                      name="uFile"
-                      maxCount={1}
-                      action=""
-                      beforeUpload={beforeUpload}
-                      onRemove={handleRemove}
-                      fileList={fileList}
-                    >
-                      <PButton
-                        type="icon"
-                        icon={<i className="iconfont icon-iconUpload"></i>}
-                        onClick={() => {}}
-                        stopPropagation={false}
-                        className="uploadBtn"
-                      ></PButton>
-                      <p>Click to browse or drag and drop your file</p>
-                    </Upload>
+                    <div>
+                      <Upload
+                        name="uFile"
+                        maxCount={1}
+                        action=""
+                        beforeUpload={beforeUpload}
+                        onRemove={handleRemove}
+                        fileList={fileList}
+                      >
+                        <PButton
+                          type="icon"
+                          icon={
+                            <i
+                              className={`iconfont icon-iconUpload
+                              `}
+                            ></i>
+                          }
+                          onClick={() => {}}
+                          stopPropagation={fileList.length < 0}
+                          className="uploadBtn"
+                          disabled={fileList.length > 0}
+                        ></PButton>
+                        <p>Click to browse or drag and drop your file</p>
+                      </Upload>
+                      {fileList.length > 0 && (
+                        <div className="uploadFileWrapper">
+                          <p>{enData ? "Uploaded" : "Uploading - 1/1 file"}</p>
+                          <div className="fileInfo">
+                            <div className="intro">
+                              <i
+                                className={`iconfont ${
+                                  enData
+                                    ? "icon-iconLock"
+                                    : "icon-iconUploadFile"
+                                }`}
+                              ></i>
+                              <div className="name">{fileList[0].name}</div>
+                            </div>
+                            <PButton
+                              type="icon"
+                              icon={
+                                <i
+                                  className={`iconfont ${
+                                    enData
+                                      ? "icon-iconDelete"
+                                      : "icon-iconClose"
+                                  }`}
+                                ></i>
+                              }
+                              onClick={handleRemove}
+                              stopPropagation={false}
+                              className="deleteBtn"
+                            ></PButton>
+                            <div
+                              className="progressBar"
+                              style={{ width: progressWidthRef.current + "%" }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
+
+                      {taskMsg && (
+                        <div className="uploadProcessDesc">{taskMsg}</div>
+                      )}
+                    </div>
                   </Form.Item>
                   <Form.Item className="submitBtnFormItem submitBtnFormItem2">
-                    <Button
-                      type="primary"
-                      htmlType="submit"
-                      loading={createLoading}
-                    >
-                      Encrypt & send to Arweave
-                    </Button>
+                    <div className="btnWithTipWrapper">
+                      <Button
+                        type="primary"
+                        htmlType="submit"
+                        loading={createLoading}
+                        disabled={!enData}
+                      >
+                        Encrypt & send to Arweave
+                      </Button>
+                      <p>Need AR token in your Arconnect wallet.</p>
+                    </div>
                   </Form.Item>
                 </Form>
               </>
