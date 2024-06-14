@@ -128,9 +128,6 @@ const Operation: FC = memo(() => {
   const onFinishForm1 = (values: any) => {
     if (!address) {
       alert("Please connect the wallet first");
-      window.open(
-        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
-      );
       // message.open({
       //   type: "warning",
       //   content: "Please connect the wallet first",
@@ -225,9 +222,6 @@ const Operation: FC = memo(() => {
       //   type: "warning",
       //   content: "Please connect the wallet first",
       // });
-      window.open(
-        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
-      );
       return;
     }
     setStep(2);

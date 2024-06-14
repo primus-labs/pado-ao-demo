@@ -253,6 +253,11 @@
                   align-items: center;
                   letter-spacing: 0px;
                   color: #525252;
+                  max-width: 252px;
+                  white-space: nowrap;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  display: inline-block;
                 }
               }
               .deleteBtn {

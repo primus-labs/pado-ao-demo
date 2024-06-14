@@ -33,9 +33,6 @@ const Table: FC<TokenTableProps> = memo(({}) => {
       //   type: "warning",
       //   content: "Please connect the wallet first",
       // });
-      window.open(
-        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
-      );
     }
     setShoppingData(j);
   };
@@ -145,12 +142,16 @@ const Table: FC<TokenTableProps> = memo(({}) => {
               <li className="tokenItem tr" key={j.id}>
                 <div className="dataId">{j.id}</div>
                 <div className="type">
-                  <div className="typeTag">
-                    {j.dataTag ? JSON.parse(j.dataTag).dataType : ""}
-                  </div>
-                  <div className="name">
-                    {j.dataTag ? JSON.parse(j.dataTag).dataName : ""}
-                  </div>
+                  {j.dataTag && JSON.parse(j.dataTag)?.dataType && (
+                    <>
+                      <div className="typeTag">
+                        {JSON.parse(j.dataTag).dataType}
+                      </div>
+                      <div className="name">
+                        {JSON.parse(j.dataTag).dataName}
+                      </div>
+                    </>
+                  )}
                 </div>
                 <div className="price">
                   {j.price ? JSON.parse(j.price).price / Math.pow(10, 3) : ""}
