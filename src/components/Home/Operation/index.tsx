@@ -2,11 +2,10 @@ import {
   generateKey,
   getResult,
   submitTask,
-  uploadData,
   encryptData,
   submitData,
 } from "@padolabs/pado-ao-sdk";
-import { Button, Form, Input, Radio, InputNumber, Upload, message } from "antd";
+import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
 import { UploadFile } from "antd/lib/upload";
 import {
   useState,
@@ -16,7 +15,6 @@ import {
   FC,
   useMemo,
   useRef,
-  useCallback,
 } from "react";
 import "./index.scss";
 import PButton from "@/components/PButton";
@@ -270,7 +268,7 @@ const Operation: FC = memo(() => {
         // downloadArrayBufferAsFile(data);
         // setBuyDataLoading(false);
       }
-    } catch (e) {
+    } catch (e:any) {
       console.log("submitTaskAndGetResult error: ", e);
       if (e?.message.indexOf("Insufficient Balance!") > -1) {
         setErrorMsg("Insufficient AO token in your Arconnect wallet.");
@@ -323,7 +321,7 @@ const Operation: FC = memo(() => {
         }, 50);
 
         try {
-          const file = fileList[0];
+          const file:any = fileList[0];
           if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file);
