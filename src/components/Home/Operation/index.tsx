@@ -85,7 +85,7 @@ const Operation: FC = memo(() => {
       //   type: "warning",
       //   content: "Please connect the wallet first",
       // });
-      alert("Please connect the wallet first");
+      alert("Please install ArConnect wallet first");
       window.open(
         "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
       );
