@@ -531,7 +531,7 @@ const Operation: FC = memo(() => {
                         loading={createLoading}
                         disabled={!enData}
                       >
-                        Encrypt & send to Arweave
+                        Send to Arweave
                       </Button>
                       <p>Need AR token in your Arconnect wallet.</p>
                       <p className="errorMsg">{errorMsg}</p>
@@ -638,13 +638,16 @@ const Operation: FC = memo(() => {
                       </li>
                     </ul>
                   </div>
-                  <Button
-                    type="primary"
-                    onClick={submitTaskAndGetResult}
-                    className="okBtn"
-                  >
-                    Buy
-                  </Button>
+                  <div className="btnWithTipWrapper">
+                    <Button
+                      type="primary"
+                      onClick={submitTaskAndGetResult}
+                      className="okBtn"
+                    >
+                      Buy
+                    </Button>
+                    <p>Need AOCRED test token in your Arconnect wallet.</p>
+                  </div>
                 </div>
               </>
             )}

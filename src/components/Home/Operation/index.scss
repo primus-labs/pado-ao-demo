@@ -201,14 +201,15 @@
                 color: #71717a;
               }
             }
-            .uploadProcessDesc {
-              font-family: Inter;
-              font-size: 12px;
-              font-weight: normal;
-              line-height: 14px;
-              letter-spacing: 0px;
-              color: #64748b;
-            }
+          }
+          .uploadProcessDesc {
+            padding-top: 16px;
+            font-family: Inter;
+            font-size: 12px;
+            font-weight: normal;
+            line-height: 14px;
+            letter-spacing: 0px;
+            color: #64748b;
           }
           .uploadFileWrapper {
             width: 100%;
@@ -436,7 +437,6 @@
         font-weight: normal;
         line-height: 16.38px;
         letter-spacing: -0.21px;
-
         color: #64748b;
       }
     }
