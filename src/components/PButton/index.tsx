@@ -1,6 +1,6 @@
-import React, { memo, useMemo } from 'react';
-import type { SyntheticEvent } from 'react';
-import './index.scss';
+import React, { memo, useMemo } from "react";
+import type { SyntheticEvent } from "react";
+import "./index.scss";
 
 interface PButtonProps {
   disabled?: boolean;
@@ -14,7 +14,7 @@ interface PButtonProps {
 
   prefix?: any;
   suffix?: any;
-  stopPropagation?: boolean
+  stopPropagation?: boolean;
 }
 // how to use: <PPButton text="Connect" type="text"  className="disable"/>
 const PButton: React.FC<PButtonProps> = memo(
@@ -29,7 +29,7 @@ const PButton: React.FC<PButtonProps> = memo(
     size = "m",
     disabled = false,
     loading = false,
-    stopPropagation = true
+    stopPropagation = true,
   }) => {
     const formatClassName = useMemo(() => {
       let defaultCN = "PButton";
@@ -71,14 +71,14 @@ const PButton: React.FC<PButtonProps> = memo(
       return defaultCN;
     }, [className, type, size, disabled]);
     const handleClick = (e: SyntheticEvent) => {
-      if (stopPropagation){e.stopPropagation();} 
+      if (stopPropagation){e.stopPropagation();}
       if (disabled) {
       } else {
         onClick && onClick();
       }
     };
     return (
-      <button className={formatClassName} onClick={handleClick}>
+      <button className={formatClassName} onClick={handleClick} type="button">
         {prefix}
         {type === "icon" ? (
           icon

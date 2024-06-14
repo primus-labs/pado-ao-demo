@@ -43,7 +43,7 @@
     header {
       width: 100%;
       text-align: center;
-      padding: 8px 0;
+      padding: 4px 0;
       h5 {
         font-family: "Inter";
         font-size: 24px;
@@ -52,6 +52,7 @@
         letter-spacing: -0.6px;
       }
       h6 {
+        padding-top: 8px;
         font-family: Inter;
         font-size: 14px;
         font-weight: normal;
@@ -274,23 +275,26 @@
             }
           }
         }
-        .btnWithTipWrapper {
-          width: 100%;
-          @include fcss;
-          gap: 8px;
-          > p {
-            font-family: Inter;
-            font-size: 12px;
-            font-weight: normal;
-            line-height: 14px;
-            letter-spacing: 0px;
-            color: #64748b;
-          }
-        }
       }
       &.operationForm2 {
         height: 420px;
         position: relative;
+      }
+    }
+    .btnWithTipWrapper {
+      width: 100%;
+      @include fcss;
+      gap: 8px;
+      > p {
+        font-family: Inter;
+        font-size: 12px;
+        font-weight: normal;
+        line-height: 14px;
+        letter-spacing: 0px;
+        color: #64748b;
+        &.errorMsg {
+          color: #fa4d56;
+        }
       }
     }
     .PBack {

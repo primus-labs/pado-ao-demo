@@ -1,5 +1,5 @@
 import { memo, useState, useMemo, FC, useContext } from "react";
-import { Pagination, Spin } from "antd";
+import { Pagination, Spin, message } from "antd";
 import PButton from "@/components/PButton";
 import PSelect from "@/components/PSelect";
 import iconSort from "@/assets/img/iconSort.svg";
@@ -29,7 +29,13 @@ const Table: FC<TokenTableProps> = memo(({}) => {
   const handleAddToShoppingCart = async (j: any) => {
     if (!ownerAddress) {
       alert("Please connect the wallet first");
-      return;
+      // message.open({
+      //   type: "warning",
+      //   content: "Please connect the wallet first",
+      // });
+      window.open(
+        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
+      );
     }
     setShoppingData(j);
   };
@@ -54,10 +60,16 @@ const Table: FC<TokenTableProps> = memo(({}) => {
     let filteredList = [...marketDataList];
     if (filterKeyword) {
       filteredList = marketDataList.filter((i: any) => {
-        const { id } = i;
-        // const dataTagObj = JSON.parse(dataTag);
-        // dataTagObj.dataName.startsWith(filterKeyWord)
-        return id.toLowerCase().startsWith(filterKeyword.toLowerCase());
+        const lowerCaseKeyword = filterKeyword.toLowerCase();
+        const { id, dataTag } = i;
+        let dataName;
+        if (dataTag) {
+          dataName = JSON.parse(dataTag).dataName;
+        }
+        return (
+          id.toLowerCase().startsWith(lowerCaseKeyword) ||
+          (dataName && dataName.toLowerCase().startsWith(lowerCaseKeyword))
+        );
       });
     }
     if (filterType && filterType !== "All") {

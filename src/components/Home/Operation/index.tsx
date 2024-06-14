@@ -6,7 +6,7 @@ import {
   encryptData,
   submitData,
 } from "@padolabs/pado-ao-sdk";
-import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
+import { Button, Form, Input, Radio, InputNumber, Upload, message } from "antd";
 import { UploadFile } from "antd/lib/upload";
 import {
   useState,
@@ -16,6 +16,7 @@ import {
   FC,
   useMemo,
   useRef,
+  useCallback,
 } from "react";
 import "./index.scss";
 import PButton from "@/components/PButton";
@@ -48,7 +49,9 @@ const Operation: FC = memo(() => {
     dataPrice?: number;
   }>({});
   const [createLoading, setCreateLoading] = useState<boolean>(false);
-  const progressWidthRef = useRef(0);
+  const [errorMsg, setErrorMsg] = useState<string>();
+
+  const progressRef = useRef<HTMLInputElement>(null);
   // const [buyDataLoading, setBuyDataLoading] = useState<boolean>(false);
 
   const formatSize = (fileSize: number) => {
@@ -80,7 +83,11 @@ const Operation: FC = memo(() => {
       return;
     }
     if (!window.arweaveWallet) {
-      alert("Please install the arconnect wallet first!");
+      // message.open({
+      //   type: "warning",
+      //   content: "Please connect the wallet first",
+      // });
+      alert("Please connect the wallet first");
       window.open(
         "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
       );
@@ -101,13 +108,14 @@ const Operation: FC = memo(() => {
     setOwnerAddress(addressTmp);
   };
   const beforeUpload = (file: UploadFile) => {
-    setFileList([...fileList, file]);
+    setFileList([file]);
     return false;
   };
   const handleRemove = () => {
     form2.resetFields();
     setFileList([]);
     setFileData(undefined);
+    setEnData(undefined);
     return true;
   };
   const handleBack = () => {
@@ -122,6 +130,13 @@ const Operation: FC = memo(() => {
   const onFinishForm1 = (values: any) => {
     if (!address) {
       alert("Please connect the wallet first");
+      window.open(
+        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
+      );
+      // message.open({
+      //   type: "warning",
+      //   content: "Please connect the wallet first",
+      // });
       return;
     }
     console.log("The value of the form1:", values, form1.getFieldsValue()); // values 就是你的 userForm 对象
@@ -133,7 +148,7 @@ const Operation: FC = memo(() => {
   };
 
   const onFinishForm2 = async (values: any) => {
-    if (fileList.length <= 0) {
+    if (!enData) {
       return;
     }
     setCreateLoading(true);
@@ -183,7 +198,7 @@ const Operation: FC = memo(() => {
         setMarketDataListAsync();
         setDataId(dataId);
         console.log(`DATAID=${dataId}`);
-
+        setErrorMsg("");
         setStep(3);
         // };
       }
@@ -195,7 +210,7 @@ const Operation: FC = memo(() => {
           "Unable to upload transaction: 400, Transaction verification failed."
         ) > -1
       ) {
-        alert("Need AR token in your Arconnect wallet.");
+        setErrorMsg("Insufficient AR token in your Arconnect wallet.");
       }
     } finally {
       setCreateLoading(false);
@@ -208,6 +223,13 @@ const Operation: FC = memo(() => {
   async function submitTaskAndGetResult() {
     if (!address) {
       alert("Please connect the wallet first");
+      // message.open({
+      //   type: "warning",
+      //   content: "Please connect the wallet first",
+      // });
+      window.open(
+        "https://chromewebstore.google.com/detail/arconnect/einnioafmpimabjcddiinlhmijaionap"
+      );
       return;
     }
     setStep(2);
@@ -232,6 +254,10 @@ const Operation: FC = memo(() => {
         })
         .catch((err) => {
           setTaskMsg(`error: ${err}`);
+          // message.open({
+          //   type: "error",
+          //   content: err,
+          // });
           alert(err);
           return [err, null];
         });
@@ -246,6 +272,9 @@ const Operation: FC = memo(() => {
       }
     } catch (e) {
       console.log("submitTaskAndGetResult error: ", e);
+      if (e?.message.indexOf("Insufficient Balance!") > -1) {
+        setErrorMsg("Insufficient AO token in your Arconnect wallet.");
+      }
     }
   }
 
@@ -268,21 +297,30 @@ const Operation: FC = memo(() => {
 
   useEffect(() => {
     setOperationType(shoppingData?.id ? "detail" : "create");
+    setStep(1);
+    setErrorMsg(undefined);
+    form2.resetFields();
+    setFileList([]);
+    setFileData(undefined);
+    setEnData(undefined);
   }, [shoppingData]);
   useEffect(() => {
     if (fileList.length > 0) {
       const encryptFn = async () => {
-        setTaskMsg("encrypt data...");
+        setTaskMsg("key generation...");
+        let progressWidth = 30;
         const progressTimer = setInterval(() => {
-          progressWidthRef.current = progressWidthRef.current + 1;
-          if (progressWidthRef.current === 30) {
+          progressWidth++;
+          // @ts-ignore
+          progressRef.current.style.width = progressWidth + "%";
+          if (progressWidth >= 50) {
             setTaskMsg("encrypt data...");
           }
-          if (progressWidthRef.current === 100) {
+          if (progressWidth >= 100) {
             clearInterval(progressTimer);
             setTaskMsg("");
           }
-        }, 30);
+        }, 50);
 
         try {
           const file = fileList[0];
@@ -294,7 +332,9 @@ const Operation: FC = memo(() => {
               const data = new Uint8Array(content);
               const enData = await encryptData(data);
               clearInterval(progressTimer);
-              progressWidthRef.current = 100;
+              progressWidth = 100;
+              // @ts-ignore
+              progressRef.current.style.width = progressWidth + "%";
               setEnData(enData);
               setTaskMsg("");
               console.log(`enData=${enData}`);
@@ -307,10 +347,10 @@ const Operation: FC = memo(() => {
       encryptFn();
     }
   }, [fileList]);
-  const handleClickUploadBtn = () => {
-    if (fileList.length > 0) {
-    }
-  };
+  useEffect(() => {
+    setEnData(undefined);
+  }, [fileList[0]]);
+
   return (
     <div className="operationWrapper">
       <PButton
@@ -336,9 +376,6 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm1}
                   initialValues={{
                     dataType: "Text",
-                    dataName: "name12",
-                    dataDescription: "hfidfdfd",
-                    dataPrice: 0.001,
                   }}
                   requiredMark={false}
                   className="operationForm"
@@ -446,9 +483,8 @@ const Operation: FC = memo(() => {
                             ></i>
                           }
                           onClick={() => {}}
-                          stopPropagation={fileList.length < 0}
                           className="uploadBtn"
-                          disabled={fileList.length > 0}
+                          stopPropagation={false}
                         ></PButton>
                         <p>Click to browse or drag and drop your file</p>
                       </Upload>
@@ -483,8 +519,9 @@ const Operation: FC = memo(() => {
                             ></PButton>
                             <div
                               className="progressBar"
-                              style={{ width: progressWidthRef.current + "%" }}
+                              ref={progressRef}
                             ></div>
+                            {/* style={{ width: progressWidthRef.current + "%" }} */}
                           </div>
                         </div>
                       )}
@@ -505,6 +542,7 @@ const Operation: FC = memo(() => {
                         Encrypt & send to Arweave
                       </Button>
                       <p>Need AR token in your Arconnect wallet.</p>
+                      <p className="errorMsg">{errorMsg}</p>
                     </div>
                   </Form.Item>
                 </Form>
@@ -635,15 +673,17 @@ const Operation: FC = memo(() => {
                   ) : (
                     <div className="processDesc">{taskMsg}</div>
                   )}
-
-                  <Button
-                    type="primary"
-                    onClick={downloadArrayBufferAsFile}
-                    className="okBtn"
-                    disabled={!fileData}
-                  >
-                    Download
-                  </Button>
+                  <div className="btnWithTipWrapper">
+                    <Button
+                      type="primary"
+                      onClick={downloadArrayBufferAsFile}
+                      className="okBtn"
+                      disabled={!fileData}
+                    >
+                      Download
+                    </Button>
+                    <p className="errorMsg">{errorMsg}</p>
+                  </div>
                 </div>
               </>
             )}

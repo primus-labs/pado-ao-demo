@@ -91,9 +91,6 @@ export function CounterProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMarketDataListAsync();
   }, []);
-  // useEffect(() => {
-  //   alert(1)
-  // })
 
   return (
     <CounterContext.Provider
