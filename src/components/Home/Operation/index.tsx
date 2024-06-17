@@ -685,6 +685,19 @@ const Operation: FC = memo(() => {
           </>
         )}
       </div>
+      <div className="extraInfo">
+        <a
+          href="https://docs.padolabs.org/ecosystem/ao/introduction"
+          target="_blank"
+        >
+          <i className="iconfont icon-iconDoc"></i>
+          <span>Read the docs</span>
+        </a>
+        <a href="https://github.com/pado-labs/pado-ao-sdk" target="_blank">
+          <i className="iconfont icon-iconGithub"></i>
+          <span>See on Github</span>
+        </a>
+      </div>
     </div>
   );
 });
