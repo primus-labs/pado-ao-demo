@@ -1,5 +1,6 @@
 import { memo, useState, useMemo, FC, useContext } from "react";
 import { Pagination, Spin } from "antd";
+import {div} from '@/utils/utils'
 import PButton from "@/components/PButton";
 import PSelect from "@/components/PSelect";
 import iconSort from "@/assets/img/iconSort.svg";
@@ -129,7 +130,7 @@ const Table: FC<TokenTableProps> = memo(({}) => {
             </div>
             <div className="price">
               <div className="priceBox">
-                <div className="priceText">Price(AO)</div>
+                <div className="priceText">Price(wAR)</div>
                 <div className="sortWrapper">
                   <img src={iconSort} alt="" onClick={handleSort} />
                 </div>
@@ -154,7 +155,8 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                   )}
                 </div>
                 <div className="price">
-                  {j.price ? JSON.parse(j.price).price / Math.pow(10, 3) : ""}
+                  {j.price ?div(JSON.parse(j.price).price,Math.pow(10, 12)).toString() : ''}
+                  {/* {j.price ? JSON.parse(j.price).price / Math.pow(10, 12) : ""} */}
                 </div>
                 <div className="operation">
                   <PButton

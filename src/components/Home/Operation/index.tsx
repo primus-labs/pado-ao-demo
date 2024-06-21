@@ -16,11 +16,13 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { mul } from "@/utils/utils";
 import "./index.scss";
 import PButton from "@/components/PButton";
 import PBack from "@/components/PBack";
 import iconText from "@/assets/img/iconText.svg";
 import iconVideo from "@/assets/img/iconVideo.svg";
+import iconHome from "@/assets/img/iconHome.svg";
 import CounterContext from "../CounterContext";
 
 const Operation: FC = memo(() => {
@@ -174,8 +176,8 @@ const Operation: FC = memo(() => {
 
         // price for the data
         let priceInfo = {
-          price: (dataPrice as number) * Math.pow(10, 3) + "",
-          symbol: "AOCRED",
+          price: mul(dataPrice as number, Math.pow(10, 12)).toString(),
+          symbol: "wAR",
         };
         // const dataId = await uploadData(
         //   data,
@@ -199,7 +201,7 @@ const Operation: FC = memo(() => {
       }
     } catch (e: any) {
       // Unable to upload transaction: 400, Transaction verification failed.
-      console.log("onFinishForm2 error:", e.message);
+      console.log("onFinishForm2 error:", e, e.message);
       if (
         e?.message.indexOf(
           "Unable to upload transaction: 400, Transaction verification failed."
@@ -262,10 +264,10 @@ const Operation: FC = memo(() => {
         // downloadArrayBufferAsFile(data);
         // setBuyDataLoading(false);
       }
-    } catch (e:any) {
+    } catch (e: any) {
       console.log("submitTaskAndGetResult error: ", e);
       if (e?.message.indexOf("Insufficient Balance!") > -1) {
-        setErrorMsg("Insufficient AO token in your Arconnect wallet.");
+        setErrorMsg("Insufficient wAR token in your Arconnect wallet.");
       }
     }
   }
@@ -315,7 +317,7 @@ const Operation: FC = memo(() => {
         }, 50);
 
         try {
-          const file:any = fileList[0];
+          const file: any = fileList[0];
           if (file) {
             const reader = new FileReader();
             reader.readAsArrayBuffer(file);
@@ -345,12 +347,17 @@ const Operation: FC = memo(() => {
 
   return (
     <div className="operationWrapper">
-      <PButton
-        type="text2"
-        text={address ? formatAddress : "Connect Wallet"}
-        onClick={handleConnect}
-        className="connectBtn"
-      />
+      <div className="connectBtnWrapper">
+        {operationType === "detail" && step === 2 && (
+          <img src={iconHome} onClick={handleInit} />
+        )}
+        <PButton
+          type="text2"
+          text={address ? formatAddress : "Connect Wallet"}
+          onClick={handleConnect}
+          className="connectBtn"
+        />
+      </div>
       <div className="content">
         {operationType === "create" && (
           <>
@@ -419,15 +426,19 @@ const Operation: FC = memo(() => {
                     />
                   </Form.Item>
                   <Form.Item
-                    label="Price (AO)"
+                    label="Price (wAR)"
                     name="dataPrice"
                     className="priceFormItem"
                     rules={[
                       { required: true, message: "${label} is required" },
-                      { type: "number", min: 0.001 },
+                      { type: "number", min: 0.000000000001 },
                     ]}
                   >
-                    <InputNumber placeholder="1.234" min="0" step="0.001" />
+                    <InputNumber
+                      placeholder="0.000000000001"
+                      min="0.000000000001"
+                      step="0.000000000001"
+                    />
                   </Form.Item>
                   <Form.Item className="submitBtnFormItem">
                     <Button type="primary" htmlType="submit">
@@ -623,7 +634,7 @@ const Operation: FC = memo(() => {
                       </li>
 
                       <li className="detailItem">
-                        <div className="label">Price (AO)</div>
+                        <div className="label">Price (wAR)</div>
                         <div className="value">
                           {shoppingData.dataTag &&
                             JSON.parse(shoppingData.dataTag).dataPrice}
@@ -646,7 +657,12 @@ const Operation: FC = memo(() => {
                     >
                       Buy
                     </Button>
-                    <p>Need AOCRED test token in your Arconnect wallet.</p>
+                    <p>
+                      Need wAR token in your Arconnect wallet. Bridge from{" "}
+                      <a href="https://aox.xyz/#/beta" target="_blank">
+                        AOX
+                      </a>
+                    </p>
                   </div>
                 </div>
               </>

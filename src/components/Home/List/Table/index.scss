@@ -163,7 +163,7 @@
           letter-spacing: 0px;
         }
         &.type {
-          width: 292px;
+          width: 251px;
           @include frsc;
           gap: 8px;
           .typeTag {
@@ -180,7 +180,7 @@
             color: #f4f4f4;
           }
           .name {
-            max-width: 215px;
+            max-width: 181px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -188,10 +188,15 @@
           }
         }
         &.price {
-          width: 115px;
+          width: 156px;
+          
+          @include frss;
+          justify-content: flex-end;
+          text-align: right;
         }
         &.operation {
           width: 60px;
+          @include frcc;
           .addBtn {
             width: 20px;
             height: 20px;

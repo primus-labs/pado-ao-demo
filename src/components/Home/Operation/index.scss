@@ -3,17 +3,26 @@
   background: #fff;
   @include frcc;
   position: relative;
-
-  .connectBtn {
-    width: 133px;
-    height: 36px;
+  .connectBtnWrapper {
     position: absolute;
     top: 32px;
     right: 32px;
-    .btnText {
-      color: #09090b;
+    @include frsc;
+    gap: 16px;
+    > img {
+      width: 16px;
+      height: 16px;
+    }
+    .connectBtn {
+      width: 133px;
+      height: 36px;
+
+      .btnText {
+        color: #09090b;
+      }
     }
   }
+
   .extraInfo {
     // width: 291px;
     height: 14px;
@@ -329,6 +338,13 @@
         &.errorMsg {
           color: #fa4d56;
         }
+       
+          > a {
+            color: #64748b;
+            font-weight: normal;
+            text-decoration: underline;
+          }
+        
       }
     }
     .PBack {
