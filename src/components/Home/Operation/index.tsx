@@ -124,6 +124,7 @@ const Operation: FC = memo(() => {
     setStep((p) => --p);
   };
   const handleInit = () => {
+    setTaskMsg("");
     setShoppingData({});
     form1.resetFields();
     form2.resetFields();
@@ -346,6 +347,17 @@ const Operation: FC = memo(() => {
   useEffect(() => {
     setEnData(undefined);
   }, [fileList[0]]);
+  const handleChangeUpload = (info: {
+    file: UploadFile;
+    fileList: UploadFile[];
+  }): void => {
+    if (info.file.status !== "uploading") {
+      console.log(info.file, info.fileList);
+      form2.setFieldsValue({
+        uploadFile: info,
+      });
+    }
+  };
 
   return (
     <div className="operationWrapper">
@@ -461,6 +473,7 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm2}
                   requiredMark={false}
                   className="operationForm operationForm2"
+                  
                 >
                   <Form.Item
                     label="Upload File"
@@ -478,6 +491,7 @@ const Operation: FC = memo(() => {
                         beforeUpload={beforeUpload}
                         onRemove={handleRemove}
                         fileList={fileList}
+                        onChange={handleChangeUpload}
                       >
                         <PButton
                           type="icon"

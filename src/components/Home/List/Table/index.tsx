@@ -1,6 +1,7 @@
 import { memo, useState, useMemo, FC, useContext } from "react";
 import { Pagination, Spin } from "antd";
-import {div} from '@/utils/utils'
+import dayjs from "dayjs";
+import { div } from "@/utils/utils";
 import PButton from "@/components/PButton";
 import PSelect from "@/components/PSelect";
 import iconSort from "@/assets/img/iconSort.svg";
@@ -155,7 +156,12 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                   )}
                 </div>
                 <div className="price">
-                  {j.price ?div(JSON.parse(j.price).price,Math.pow(10, 12)).toString() : ''}
+                  {j.price
+                    ? div(
+                        JSON.parse(j.price).price,
+                        Math.pow(10, 12)
+                      ).toString()
+                    : ""}
                   {/* {j.price ? JSON.parse(j.price).price / Math.pow(10, 12) : ""} */}
                 </div>
                 <div className="operation">
@@ -166,6 +172,9 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                       handleAddToShoppingCart(j);
                     }}
                     className="addBtn"
+                    disabled={
+                      dayjs().diff(dayjs(j.registeredTimestamp), "minute") < 1
+                    }
                   />
                 </div>
               </li>

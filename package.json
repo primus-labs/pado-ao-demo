@@ -13,6 +13,7 @@
     "@padolabs/pado-ao-sdk": "^0.1.4",
     "antd": "^5.18.0",
     "bignumber.js": "^9.1.2",
+    "dayjs": "^1.11.11",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
