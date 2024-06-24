@@ -5,6 +5,8 @@ import {
   encryptData,
   submitData,
 } from "@padolabs/pado-ao-sdk";
+import BigNumber from "bignumber.js";
+
 import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
 import { UploadFile } from "antd/lib/upload";
 import {
@@ -16,7 +18,7 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { mul } from "@/utils/utils";
+import { mul, div } from "@/utils/utils";
 import "./index.scss";
 import PButton from "@/components/PButton";
 import PBack from "@/components/PBack";
@@ -579,8 +581,11 @@ const Operation: FC = memo(() => {
                         <div className="value">{form1Data?.dataName}</div>
                       </li>
                       <li className="detailItem">
-                        <div className="label">Price (AO)</div>
-                        <div className="value">{form1Data?.dataPrice}</div>
+                        <div className="label">Price (wAR)</div>
+
+                        <div className="value">
+                          {BigNumber(Number(form1Data.dataPrice)).toString()}
+                        </div>
                       </li>
                       <li className="detailItem">
                         <div className="label">Description</div>
@@ -636,8 +641,12 @@ const Operation: FC = memo(() => {
                       <li className="detailItem">
                         <div className="label">Price (wAR)</div>
                         <div className="value">
-                          {shoppingData.dataTag &&
-                            JSON.parse(shoppingData.dataTag).dataPrice}
+                          {shoppingData.price
+                            ? div(
+                                JSON.parse(shoppingData.price).price,
+                                Math.pow(10, 12)
+                              ).toString()
+                            : ""}
                         </div>
                       </li>
                       <li className="detailItem">
