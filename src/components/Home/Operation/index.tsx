@@ -1,9 +1,10 @@
 import {
-  generateKey,
-  getResult,
-  submitTask,
   encryptData,
   submitData,
+
+  generateKey,
+  submitTask,
+  getResult,
 } from "@padolabs/pado-ao-sdk";
 import BigNumber from "bignumber.js";
 
@@ -182,13 +183,6 @@ const Operation: FC = memo(() => {
           price: mul(dataPrice as number, Math.pow(10, 12)).toString(),
           symbol: "wAR",
         };
-        // const dataId = await uploadData(
-        //   data,
-        //   dataTag,
-        //   priceInfo,
-        //   window.arweaveWallet
-        // );
-        // const enData = await encryptData(data);
         const dataId = await submitData(
           enData,
           dataTag,
@@ -234,7 +228,6 @@ const Operation: FC = memo(() => {
     try {
       setTaskMsg("generate key...");
       let key = await generateKey();
-
       setTaskMsg("submit task...");
       const taskId = await submitTask(
         shoppingData.id,
