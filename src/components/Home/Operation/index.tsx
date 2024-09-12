@@ -1,11 +1,4 @@
-import {
-  encryptData,
-  submitData,
-
-  generateKey,
-  submitTask,
-  getResult,
-} from "@padolabs/pado-ao-sdk";
+import { Data, Task, utils } from "superorange-ao-sdk";
 import BigNumber from "bignumber.js";
 
 import { Button, Form, Input, Radio, InputNumber, Upload } from "antd";
@@ -29,6 +22,8 @@ import iconHome from "@/assets/img/iconHome.svg";
 import CounterContext from "../CounterContext";
 
 const Operation: FC = memo(() => {
+  const dataInstance = new Data("ao");
+  const taskInstance = new Task("ao");
   const {
     state: { shoppingData },
     setShoppingData,
@@ -183,7 +178,8 @@ const Operation: FC = memo(() => {
           price: mul(dataPrice as number, Math.pow(10, 12)).toString(),
           symbol: "wAR",
         };
-        const dataId = await submitData(
+
+        const dataId = await dataInstance.submitData(
           enData,
           dataTag,
           priceInfo,
@@ -227,16 +223,19 @@ const Operation: FC = memo(() => {
     // setBuyDataLoading(true);
     try {
       setTaskMsg("generate key...");
-      let key = await generateKey();
+      let key = await utils.generateKey();
       setTaskMsg("submit task...");
-      const taskId = await submitTask(
-        shoppingData.id,
+
+      const taskId = await taskInstance.submitTask(
         key.pk,
-        window.arweaveWallet
+        window.arweaveWallet,
+        "ZKLHEDataSharing",
+        shoppingData.id
       );
       console.log(`TASKID=${taskId}`);
       setTaskMsg("get task result...");
-      const [err, data] = await getResult(taskId, key.sk)
+      const [err, data] = await taskInstance
+        .getResult(taskId, key.sk)
         .then((data) => {
           setTaskMsg("");
           setTaskMsg("BuyFinished");
@@ -320,7 +319,8 @@ const Operation: FC = memo(() => {
             reader.onload = async (e: any) => {
               const content = e.target.result;
               const data = new Uint8Array(content);
-              const enData = await encryptData(data);
+
+              const enData = await dataInstance.encryptData(data);
               clearInterval(progressTimer);
               progressWidth = 100;
               // @ts-ignore
@@ -351,6 +351,11 @@ const Operation: FC = memo(() => {
       });
     }
   };
+  useEffect(() => {
+    setTimeout(() => {
+      console.log("web page 中 pado =", window.pado);
+    }, 5000);
+  }, []);
 
   return (
     <div className="operationWrapper">
@@ -466,7 +471,6 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm2}
                   requiredMark={false}
                   className="operationForm operationForm2"
-                  
                 >
                   <Form.Item
                     label="Upload File"
@@ -652,7 +656,7 @@ const Operation: FC = memo(() => {
                             ? div(
                                 JSON.parse(shoppingData.price).price,
                                 Math.pow(10, 12)
-                              ).toString()
+                              ).toFixed()
                             : ""}
                         </div>
                       </li>
@@ -719,7 +723,7 @@ const Operation: FC = memo(() => {
       </div>
       <div className="extraInfo">
         <a
-          href="https://docs.padolabs.org/ecosystem/ao/introduction"
+          href="https://medium.com/@padolabs/a-quick-glance-at-zkfhe-computation-on-ao-75bc73c9518c"
           target="_blank"
         >
           <i className="iconfont icon-iconDoc"></i>

@@ -1,6 +1,7 @@
 // CounterContext.tsx
 import React, { createContext, useReducer, Reducer, useEffect } from "react";
-import { listData } from "@padolabs/pado-ao-sdk";
+import { Data, Fee, Task, utils } from "superorange-ao-sdk";
+console.log('ysm',  Data, Fee, Task, utils)
 interface CounterState {
   shoppingData: any;
   marketDataList: any;
@@ -78,7 +79,8 @@ export function CounterProvider({ children }: { children: React.ReactNode }) {
   const setMarketDataListAsync = async () => {
     try {
       setMarketDataListLoading(true);
-      const res = await listData();
+      const dataInstance = new Data('ao')
+      const res = await dataInstance.listData();
       const newL = res.sort(
         (a: any, b: any) => b.registeredTimestamp - a.registeredTimestamp
       );
