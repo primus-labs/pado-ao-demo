@@ -160,7 +160,7 @@ const Table: FC<TokenTableProps> = memo(({}) => {
                     ? div(
                         JSON.parse(j.price).price,
                         Math.pow(10, 12)
-                      ).toFixed()
+                      ).toString()
                     : ""}
                   {/* {j.price ? JSON.parse(j.price).price / Math.pow(10, 12) : ""} */}
                 </div>
