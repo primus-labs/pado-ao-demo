@@ -466,7 +466,6 @@ const Operation: FC = memo(() => {
                   onFinishFailed={onFinishFailedForm2}
                   requiredMark={false}
                   className="operationForm operationForm2"
-                  
                 >
                   <Form.Item
                     label="Upload File"
@@ -719,7 +718,7 @@ const Operation: FC = memo(() => {
       </div>
       <div className="extraInfo">
         <a
-          href="https://docs.padolabs.org/ecosystem/ao/introduction"
+          href="https://medium.com/@padolabs/a-quick-glance-at-zkfhe-computation-on-ao-75bc73c9518c"
           target="_blank"
         >
           <i className="iconfont icon-iconDoc"></i>
